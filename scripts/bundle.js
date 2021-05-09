@@ -325,11 +325,10 @@ function getText(domElement) {
             }
         },
         getData: async function(text,overlay,score) {
-            // const URL = 'https://text-check.herokuapp.com/';
-            const URL = 'http://localhost:3000/';
-            const link = text.match(/(?:https?|ftp?|www.):\/\/[\n\S]+/)
+            const URL = 'https://text-check.herokuapp.com/';
+            // const URL = 'http://localhost:3000/';
             var b = text.replace(/(?:https?|ftp?|www.):\/\/[\n\S]+/g, '');
-            const data = JSON.stringify({"url":`${link}`,"text":`${b}`})
+            const data = JSON.stringify({"text":`${b}`})
             $.ajax({
                 url:URL,
                 type:"POST",
