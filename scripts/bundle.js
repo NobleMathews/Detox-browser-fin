@@ -1,8 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 // shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
+var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
 // don't break things.  But we need to wrap it in a try catch in case it is
 // wrapped in strict mode code which doesn't define any globals.  It's inside a
 // function because try/catches deoptimize in certain engines.
@@ -11,153 +9,171 @@ var cachedSetTimeout;
 var cachedClearTimeout;
 
 function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
+  throw new Error('setTimeout has not been defined');
 }
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
+
+function defaultClearTimeout() {
+  throw new Error('clearTimeout has not been defined');
 }
+
 (function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
+  try {
+    if (typeof setTimeout === 'function') {
+      cachedSetTimeout = setTimeout;
+    } else {
+      cachedSetTimeout = defaultSetTimout;
     }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
+  } catch (e) {
+    cachedSetTimeout = defaultSetTimout;
+  }
+
+  try {
+    if (typeof clearTimeout === 'function') {
+      cachedClearTimeout = clearTimeout;
+    } else {
+      cachedClearTimeout = defaultClearTimeout;
     }
-} ())
+  } catch (e) {
+    cachedClearTimeout = defaultClearTimeout;
+  }
+})();
+
 function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
+  if (cachedSetTimeout === setTimeout) {
+    //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+  } // if setTimeout wasn't available but was latter defined
+
+
+  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+    cachedSetTimeout = setTimeout;
+    return setTimeout(fun, 0);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedSetTimeout(fun, 0);
+  } catch (e) {
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
+      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+      return cachedSetTimeout.call(null, fun, 0);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+      return cachedSetTimeout.call(this, fun, 0);
     }
-
-
+  }
 }
+
 function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
+  if (cachedClearTimeout === clearTimeout) {
+    //normal enviroments in sane situations
+    return clearTimeout(marker);
+  } // if clearTimeout wasn't available but was latter defined
+
+
+  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+    cachedClearTimeout = clearTimeout;
+    return clearTimeout(marker);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedClearTimeout(marker);
+  } catch (e) {
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
+      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+      return cachedClearTimeout.call(null, marker);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+      return cachedClearTimeout.call(this, marker);
     }
-
-
-
+  }
 }
+
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
+  if (!draining || !currentQueue) {
+    return;
+  }
+
+  draining = false;
+
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+
+  if (queue.length) {
+    drainQueue();
+  }
 }
 
 function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
+  if (draining) {
+    return;
+  }
 
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
+  var timeout = runTimeout(cleanUpNextTick);
+  draining = true;
+  var len = queue.length;
+
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+
+    while (++queueIndex < len) {
+      if (currentQueue) {
+        currentQueue[queueIndex].run();
+      }
     }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
+
+    queueIndex = -1;
+    len = queue.length;
+  }
+
+  currentQueue = null;
+  draining = false;
+  runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
+  var args = new Array(arguments.length - 1);
+
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
     }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
+  }
+
+  queue.push(new Item(fun, args));
+
+  if (queue.length === 1 && !draining) {
+    runTimeout(drainQueue);
+  }
+}; // v8 likes predictible objects
+
+
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+
+Item.prototype.run = function () {
+  this.fun.apply(null, this.array);
 };
 
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
 process.version = ''; // empty string to avoid regexp issues
+
 process.versions = {};
 
 function noop() {}
@@ -172,249 +188,2897 @@ process.emit = noop;
 process.prependListener = noop;
 process.prependOnceListener = noop;
 
-process.listeners = function (name) { return [] }
+process.listeners = function (name) {
+  return [];
+};
 
 process.binding = function (name) {
-    throw new Error('process.binding is not supported');
+  throw new Error('process.binding is not supported');
 };
 
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
+process.cwd = function () {
+  return '/';
 };
-process.umask = function() { return 0; };
+
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+
+process.umask = function () {
+  return 0;
+};
 
 },{}],2:[function(require,module,exports){
-function getText(domElement) {
-    var clean = ["Featured snippet from the web ","Web results ","...","People also search for"]
-    var root = domElement;
-    var text = [];
-  
-    function traverseTree(root) {
-      Array.prototype.forEach.call(root.childNodes, function(child) {
-        if (child.nodeType === 3) {
-          var str = child.nodeValue.trim();
-          if (str.length > 0) {
-            text.push(str);
-          }
-        } else {
-          traverseTree(child);
-        }
-      });
-    }
-    traverseTree(root);
-    var result = text.join(' ');
-    clean.forEach(el=>
-        result = result.replaceAll(el,' ')
-    );
-    return result
-}
-(function() {
-    var Sentiment = require('sentiment');
-    var sentiment = new Sentiment();
-    var Detoxer = {
-        currentUrl: {},
-        ignoreList:[], 
-        constants: {
-            queries: {
-                result_links: '.g div > a[href*="http"]', 
-                link_parent_node: '#rso div.g', 
-                main_google_node: 'main'
-            }, 
-            events: {
-                get_info: 'get_tId_and_wId', 
-                inactive: 'inactive', 
-                active: 'active'
-            }, 
-            console: {
-                needs_to_be_updated: 'Selectors may need to be updated!', 
-                removed: 'Links were analysed from this search.'
-            }, 
-            observerConfig: { childList: true, subtree: true }
-        }, 
-        init: function() {
-            var mainGoogleNode = document.getElementById(this.constants.queries.main_google_node);
-            /* avoiding google new tab page and other variations */
-            if(!mainGoogleNode) {
-                return chrome.runtime.sendMessage({ event: this.constants.events.inactive, url: window.location.href });
-            } 
-            chrome.runtime.sendMessage({ event: this.constants.events.get_info }, (info) => {
-                var tId = info.tId;
-                var wId = info.wId;
-                this.currentUrl[wId] = this.currentUrl[wId] ? this.currentUrl[wId] : {};
-                this.currentUrl[wId][tId] = window.location.href;
-                this.remove(info);
-                this.createResultsObserver(mainGoogleNode);
-            });
-        }, 
-        getAllLinks: function() {
-            return document.querySelectorAll(this.constants.queries.result_links);
-        }, 
-        remove: function(info) {
-            var tId = info.tId;
-            var wId = info.wId;
-            // ignoring dropdown items and huge card on the right
-            var links = Array.from(this.getAllLinks()).filter(function (link) {
-                var isAccordionItem = Boolean(link.closest('g-accordion-expander'))
-                var isHugeCardOnTheRight = Boolean(link.closest('#wp-tabs-container'))
-                var isFeatured = Boolean(link.closest(".xpdopen"))
-                // .ULSxyf
-                return !isAccordionItem && !isHugeCardOnTheRight && !isFeatured;
-            });
-            var count = links.length;
-            if(!count) {
-                if(!this.isSameUrl(window.location.href, info)) {
-                    chrome.runtime.sendMessage({ event: this.constants.events.inactive });
-                    this.currentUrl[wId][tId] = window.location.href;
-                }
-                return;
-            }
-            this.currentUrl[wId][tId] = window.location.href;
-            chrome.runtime.sendMessage({ event: this.constants.events.active, count: count });
-            console.info(count + ' ' + this.constants.console.removed);
-            links.forEach(this.deleteOldGrandpaNode.bind(this));
-        }, 
-        createResultsObserver: function(mainGoogleNode) {
-            this.resultsObserver = new MutationObserver(() => {
-                chrome.runtime.sendMessage({ event: this.constants.events.get_info }, info => {
-                    var tId = info.tId;
-                    var wId = info.wId;
-                    this.currentUrl[wId] = this.currentUrl[wId] ? this.currentUrl[wId] : {};
-                    this.remove(info);
-                });
-            });
-            //this.resultsObserver.observe(mainGoogleNode, this.constants.observerConfig);
-        }, 
-        isSameUrl: function(currentUrl, info) {
-            var tId = info.tId;
-            var wId = info.wId;
-            return this.currentUrl[wId][tId] === currentUrl;
-        }, 
-        addClientRectsOverlay: function(elt,sentimenti) {
-            /* Absolutely position a div over each client rect so that its border width
-               is the same as the rectangle's width.
-               Note: the overlays will be out of place if the user resizes or zooms. */
-            var that = this;
-            var rects = elt.getClientRects();
-            for (var i = 0; i != rects.length; i++) {
-            let original = elt;
-              var rect = rects[i];
-              var tableRectDiv = document.createElement('div');
-            //   tableRectDiv.style.position = 'absolute';
-              tableRectDiv.style.border = 'none';
-              tableRectDiv.style.backgroundColor = '#f8f9fa';
-              var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-              var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-              tableRectDiv.style.margin = '0px';
-              tableRectDiv.style.padding = '5px 25px';
-              tableRectDiv.style.top = (rect.top + scrollTop) + 'px';
-              tableRectDiv.style.left = (rect.left + scrollLeft) + 'px';
-              // We want rect.width to be the border width, so content width is 2px less.
-              tableRectDiv.style.width = (rect.width - 2) + 'px';
-              tableRectDiv.style.height = (rect.height - 2) + 'px';
-              tableRectDiv.innerHTML=sentimenti.outerHTML;
-              tableRectDiv.onclick = function(){
-                that.ignoreList.push(original.id);
-                this.replaceWith(original);
-             
-                // "run_at": "document_idle"
-                // this.remove();
-            }
-            //   document.body.appendChild(tableRectDiv);
-                return tableRectDiv
-            }
-        },
-        getData: async function(text,overlay,score) {
-            const URL = 'https://text-check.herokuapp.com/';
-            // const URL = 'http://localhost:3000/';
-            var b = text.replace(/(?:https?|ftp?|www.):\/\/[\n\S]+/g, '');
-            const data = JSON.stringify({"text":`${b}`})
-            $.ajax({
-                url:URL,
-                type:"POST",
-                data:data,
-                contentType:"application/json; charset=utf-8",
-                dataType:"json",
-                success: function(data){
-                  const text = document.createElement('p');
-                  text.innerHTML=`🤖[${score}] ${data.categoriser} \n`;
-                  const text2 = document.createElement('p')
-                  text2.className = "spoiler";
-                  text2.innerHTML= data.keywords.join(", ");
-                  overlay.appendChild(text);
-                  overlay.appendChild(text2);
-                }
-              })
-        },
-        deleteOldGrandpaNode: async function(el) {
-            var parent = el.closest(this.constants.queries.link_parent_node);
-            if(!parent) return console.log(this.constants.console.needs_to_be_updated);
-            // console.log(parent.getBoundingClientRect());
-            // this.addClientRectsOverlay(parent);
-            // const original = parent;
-            if(this.ignoreList.includes(parent.id)) return;
+module.exports = require('./words.json');
 
-            // "js": [ "scripts/jquery-3.6.0.min.js", "scripts/remover.js" ],
-            // console.log(jQuery(parent).text());
-            let check_text = getText(parent);
-            let score = Number((sentiment.analyze(check_text).comparative).toFixed(1));
-            let img = '';
-            switch(true){
-                case score < -0.5:
-                    img = chrome.runtime.getURL('images/emote/np.png');
-                    break;
-                case score >= -0.5 && score < 0:
-                    img = chrome.runtime.getURL('images/emote/n0.5.png');
-                    break;
-                case score <= 0.5 && score > 0:
-                    img = chrome.runtime.getURL('images/emote/p0.5.png');
-                    break;
-                case score > 0.5:
-                    img = chrome.runtime.getURL('images/emote/pp.png');
-                    break;
-                default:
-                    img = chrome.runtime.getURL('images/emote/0.png');                              
-            }
-            let sentimenti = this.createThumbnail(img);
-            var overlay;
-            if(score<0){
-                overlay = this.addClientRectsOverlay(parent,sentimenti);
-                this.getData(check_text,overlay,score);
-                parent.replaceWith(overlay)
-            }
-            parent.insertBefore(sentimenti,parent.firstChild);
-            // parent.style.display = 'none';
+},{"./words.json":3}],3:[function(require,module,exports){
+module.exports=[
+  "2 girls 1 cup",
+  "2g1c",
+  "4r5e",
+  "5h1t",
+  "5hit",
+  "5ht",
+  "666",
+  "@$$",
+  "a s s",
+  "a s shole",
+  "a55",
+  "a55hole",
+  "a_s_s",
+  "abbo",
+  "abeed",
+  "abuse",
+  "acrotomophilia",
+  "aeolus",
+  "africoon",
+  "ahole",
+  "alabama hot pocket",
+  "alaskan pipeline",
+  "alligator bait",
+  "alligatorbait",
+  "amcik",
+  "anal",
+  "analannie",
+  "analprobe",
+  "analsex",
+  "andskota",
+  "anilingus",
+  "anus",
+  "apeshit",
+  "ar5e",
+  "arabush",
+  "arabushs",
+  "areola",
+  "areole",
+  "argie",
+  "arian",
+  "armo",
+  "armos",
+  "aroused",
+  "arrse",
+  "arschloch",
+  "arse",
+  "arsehole",
+  "aryan",
+  "ash0le",
+  "ash0les",
+  "asholes",
+  "ass monkey",
+  "ass",
+  "ass-fucker",
+  "ass-hat",
+  "ass-pirate",
+  "assbag",
+  "assbagger",
+  "assbandit",
+  "assbang",
+  "assbanged",
+  "assbanger",
+  "assbangs",
+  "assbite",
+  "assblaster",
+  "assclown",
+  "asscock",
+  "asscowboy",
+  "asscracker",
+  "asses",
+  "assface",
+  "assfuck",
+  "assfucker",
+  "assfukka",
+  "assgoblin",
+  "assh0le",
+  "assh0lez",
+  "asshat",
+  "asshead",
+  "assho1e",
+  "asshole",
+  "assholes",
+  "assholz",
+  "asshopper",
+  "asshore",
+  "assjacker",
+  "assjockey",
+  "asskiss",
+  "asskisser",
+  "assklown",
+  "asslick",
+  "asslicker",
+  "asslover",
+  "assman",
+  "assmaster",
+  "assmonkey",
+  "assmunch",
+  "assmuncher",
+  "assnigger",
+  "asspacker",
+  "asspirate",
+  "asspuppies",
+  "assrammer",
+  "assranger",
+  "assshit",
+  "assshole",
+  "asssucker",
+  "asswad",
+  "asswhole",
+  "asswhore",
+  "asswipe",
+  "asswipes",
+  "auto erotic",
+  "autoerotic",
+  "ayir",
+  "azazel",
+  "azz",
+  "azzhole",
+  "b a s t a r d",
+  "b i t c h",
+  "b o o b",
+  "b!+ch",
+  "b!tch",
+  "b!tchin",
+  "b*tch",
+  "b00b",
+  "b00bies",
+  "b00biez",
+  "b00bs",
+  "b00bz",
+  "b17ch",
+  "b1tch",
+  "b7ch",
+  "babeland",
+  "babes",
+  "baby batter",
+  "baby juice",
+  "backdoor",
+  "backdoorman",
+  "badfuck",
+  "bagging",
+  "ball gag",
+  "ball gravy",
+  "ball kicking",
+  "ball licking",
+  "ball sack",
+  "ball sucking",
+  "ballbag",
+  "balllicker",
+  "ballsack",
+  "bampot",
+  "bangbro",
+  "bangbros",
+  "banger",
+  "banging",
+  "bareback",
+  "barely legal",
+  "barelylegal",
+  "barenaked",
+  "barf",
+  "barface",
+  "barfface",
+  "bassterd",
+  "bassterds",
+  "bastard",
+  "bastardo",
+  "bastards",
+  "bastardz",
+  "basterds",
+  "basterdz",
+  "bastinado",
+  "bawdy",
+  "bazongas",
+  "bazooms",
+  "bbw",
+  "bdsm",
+  "beaner",
+  "beaners",
+  "beaney",
+  "beaneys",
+  "beardedclam",
+  "beastality",
+  "beastial",
+  "beastiality",
+  "beastility",
+  "beatch",
+  "beatoff",
+  "beatyourmeat",
+  "beaver cleaver",
+  "beaver lips",
+  "beaver",
+  "beef curtains",
+  "beeyotch",
+  "bellend",
+  "beotch",
+  "bestial",
+  "bestiality",
+  "bi curious",
+  "bi+ch",
+  "bi7ch",
+  "biatch",
+  "bicurious",
+  "big black",
+  "big breasts",
+  "big knockers",
+  "big tits",
+  "bigass",
+  "bigbastard",
+  "bigbreasts",
+  "bigbutt",
+  "bigtits",
+  "bimbo",
+  "bimbos",
+  "bint",
+  "birdlock",
+  "bitch",
+  "bitchass",
+  "bitched",
+  "bitcher",
+  "bitchers",
+  "bitches",
+  "bitchez",
+  "bitchin",
+  "bitching",
+  "bitchslap",
+  "bitchtit",
+  "bitchy",
+  "biteme",
+  "bitties",
+  "black cock",
+  "blackcock",
+  "blackman",
+  "blackout",
+  "blacks",
+  "blonde action",
+  "blonde on blonde action",
+  "blonde on blonde",
+  "bloodclaat",
+  "bloody",
+  "blow j",
+  "blow job",
+  "blow your l",
+  "blow your load",
+  "blowjob",
+  "blowjobs",
+  "blue waffle",
+  "bluegum",
+  "bluegums",
+  "blumpkin",
+  "bo ob",
+  "bo obs",
+  "boang",
+  "boche",
+  "boches",
+  "bodily",
+  "boffing",
+  "bogan",
+  "bohunk",
+  "boink",
+  "boiolas",
+  "bollick",
+  "bollock",
+  "bollocks",
+  "bollok",
+  "bollox",
+  "bombers",
+  "bombing",
+  "bomd",
+  "bondage",
+  "boned",
+  "boner",
+  "boners",
+  "bong",
+  "boob",
+  "boobies",
+  "boobs",
+  "booby",
+  "boobz",
+  "boody",
+  "booger",
+  "bookie",
+  "boong",
+  "boonga",
+  "boongas",
+  "boongs",
+  "boonie",
+  "boonies",
+  "booobs",
+  "boooobs",
+  "booooobs",
+  "booooooobs",
+  "bootee",
+  "bootlip",
+  "bootlips",
+  "booty call",
+  "booty",
+  "bootycall",
+  "boozer",
+  "boozy",
+  "bosch",
+  "bosche",
+  "bosches",
+  "boschs",
+  "bosomy",
+  "bounty bar",
+  "bounty bars",
+  "bountybar",
+  "brea5t",
+  "breastjob",
+  "breastlover",
+  "breastman",
+  "brothel",
+  "brown showers",
+  "brunette action",
+  "btch",
+  "buceta",
+  "buddhahead",
+  "buddhaheads",
+  "buffies",
+  "bugger",
+  "buggered",
+  "buggery",
+  "bukkake",
+  "bule",
+  "bules",
+  "bullcrap",
+  "bulldike",
+  "bulldyke",
+  "bullet vibe",
+  "bullshit",
+  "bullshits",
+  "bullshitted",
+  "bullturds",
+  "bumblefuck",
+  "bumfuck",
+  "bung hole",
+  "bung",
+  "bunga",
+  "bungas",
+  "bunghole",
+  "bunny fucker",
+  "burr head",
+  "burr heads",
+  "burrhead",
+  "burrheads",
+  "butchbabes",
+  "butchdike",
+  "butchdyke",
+  "butt plug",
+  "butt-pirate",
+  "buttbang",
+  "buttcheeks",
+  "buttface",
+  "buttfuck",
+  "buttfucker",
+  "buttfuckers",
+  "butthead",
+  "butthole",
+  "buttman",
+  "buttmuch",
+  "buttmunch",
+  "buttmuncher",
+  "buttons",
+  "buttpirate",
+  "buttplug",
+  "buttstain",
+  "buttwipe",
+  "byatch",
+  "c u n t",
+  "c-0-c-k",
+  "c-o-c-k",
+  "c-u-n-t",
+  "c.0.c.k",
+  "c.o.c.k.",
+  "c.u.n.t",
+  "c0ck",
+  "c0cks",
+  "c0cksucker",
+  "c0k",
+  "cabron",
+  "caca",
+  "cacker",
+  "cahone",
+  "camel jockey",
+  "camel jockeys",
+  "camel toe",
+  "cameljockey",
+  "cameltoe",
+  "camgirl",
+  "camslut",
+  "camwhore",
+  "carpet muncher",
+  "carpetmuncher",
+  "carruth",
+  "cawk",
+  "cawks",
+  "cazzo",
+  "cervix",
+  "chav",
+  "cheese eating surrender monkey",
+  "cheese eating surrender monkies",
+  "cheeseeating surrender monkey",
+  "cheeseeating surrender monkies",
+  "cheesehead",
+  "cheeseheads",
+  "cherrypopper",
+  "chickslick",
+  "china swede",
+  "china swedes",
+  "chinaman",
+  "chinamen",
+  "chinaswede",
+  "chinaswedes",
+  "chinc",
+  "chincs",
+  "ching chong",
+  "ching chongs",
+  "chinga",
+  "chingchong",
+  "chingchongs",
+  "chink",
+  "chinks",
+  "chinky",
+  "choad",
+  "chocolate rosebuds",
+  "chode",
+  "chodes",
+  "chonkies",
+  "chonky",
+  "chonkys",
+  "chraa",
+  "christ killer",
+  "christ killers",
+  "chug",
+  "chugs",
+  "chuj",
+  "chunger",
+  "chungers",
+  "chunkies",
+  "chunkys",
+  "chute",
+  "cipa",
+  "circlejerk",
+  "cl1t",
+  "clamdigger",
+  "clamdiver",
+  "clamps",
+  "clansman",
+  "clansmen",
+  "clanswoman",
+  "clanswomen",
+  "cleveland steamer",
+  "climax",
+  "clit",
+  "clitface",
+  "clitfuck",
+  "clitoris",
+  "clitorus",
+  "clits",
+  "clitty",
+  "clogwog",
+  "clover clamps",
+  "clusterfuck",
+  "cnts",
+  "cntz",
+  "cnut",
+  "cocain",
+  "cocaine",
+  "cock",
+  "cock-head",
+  "cock-sucker",
+  "cockbite",
+  "cockblock",
+  "cockblocker",
+  "cockburger",
+  "cockcowboy",
+  "cockface",
+  "cockfight",
+  "cockfucker",
+  "cockhead",
+  "cockholster",
+  "cockknob",
+  "cockknocker",
+  "cocklicker",
+  "cocklover",
+  "cockmonkey",
+  "cockmunch",
+  "cockmuncher",
+  "cocknob",
+  "cocknose",
+  "cocknugget",
+  "cockqueen",
+  "cockrider",
+  "cocks",
+  "cockshit",
+  "cocksman",
+  "cocksmith",
+  "cocksmoker",
+  "cocksucer",
+  "cocksuck",
+  "cocksucked",
+  "cocksucker",
+  "cocksucking",
+  "cocksucks",
+  "cocksuka",
+  "cocksukka",
+  "cocktease",
+  "cocky",
+  "cohee",
+  "coital",
+  "coitus",
+  "cok",
+  "cokmuncher",
+  "coksucka",
+  "commie",
+  "condom",
+  "coochie",
+  "coochy",
+  "coolie",
+  "coolies",
+  "cooly",
+  "coon ass",
+  "coon asses",
+  "coon",
+  "coonass",
+  "coonasses",
+  "coondog",
+  "coons",
+  "cooter",
+  "coprolagnia",
+  "coprophilia",
+  "copulate",
+  "corksucker",
+  "cornhole",
+  "cowgirl",
+  "cox",
+  "cra5h",
+  "crabs",
+  "crackcocain",
+  "cracker",
+  "crackpipe",
+  "crackwhore",
+  "crap",
+  "crapola",
+  "crapper",
+  "crappy",
+  "crash",
+  "creampie",
+  "crotch",
+  "crotchjockey",
+  "crotchmonkey",
+  "crotchrot",
+  "cum",
+  "cumbubble",
+  "cumdumpster",
+  "cum face",
+  "cumfest",
+  "cumjockey",
+  "cum licker",
+  "cumlickr", 
+  "cumm",
+  "cummer",
+  "cummin",
+  "cumming",
+  "cumquat",
+  "cumqueen",
+  "cums",
+  "cumshot",
+  "cumshots",
+  "cumslut",
+  "cumstain",
+  "cumtart",
+  "cumsucker",
+  "cunilingus",
+  "cunillingus",
+  "cunn",
+  "cunnie",
+  "cunnilingus",
+  "cunntt",
+  "cunny",
+  "cunt",
+  "cunteyed",
+  "cuntface",
+  "cuntfuck",
+  "cuntfucker",
+  "cunthole",
+  "cunthunter",
+  "cuntlick",
+  "cuntlicker",
+  "cuntlicking",
+  "cuntrag",
+  "cunts",
+  "cuntslut",
+  "cuntsucker",
+  "cuntz",
+  "curry muncher",
+  "curry munchers",
+  "currymuncher",
+  "currymunchers",
+  "cushi",
+  "cushis",
+  "cyalis",
+  "cyberfuc",
+  "cyberfuck",
+  "cyberfucked",
+  "cyberfucker",
+  "cyberfuckers",
+  "cyberfucking",
+  "cybersex",
+  "cyberslimer",
+  "d0ng",
+  "d0uch3",
+  "d0uche",
+  "d1ck",
+  "d1ld0",
+  "d1ldo",
+  "d4mn",
+  "dago",
+  "dagos",
+  "dahmer",
+  "damm",
+  "dammit",
+  "damn",
+  "damnation",
+  "damned",
+  "damnit",
+  "darkey",
+  "darkeys",
+  "darkie",
+  "darkies",
+  "darky",
+  "date rape",
+  "daterape",
+  "datnigga",
+  "dawgie style",
+  "dawgie-style",
+  "daygo",
+  "deapthroat",
+  "deep throat",
+  "deep throating",
+  "deepaction",
+  "deepthroat",
+  "deepthroating",
+  "defecate",
+  "deggo",
+  "dego",
+  "degos",
+  "demon",
+  "dendrophilia",
+  "destroyyourpussy",
+  "deth",
+  "diaperdaddy",
+  "diaper daddy",
+  "diaper head",
+  "diaper heads",
+  "diaperhead",
+  "diaperheads",
+  "dick pic",
+  "dick",
+  "dick-ish",
+  "dickbag",
+  "dickbeaters",
+  "dickbrain",
+  "dickdipper",
+  "dickface",
+  "dickflipper",
+  "dickforbrains",
+  "dickfuck",
+  "dickhead",
+  "dickheads",
+  "dickhole",
+  "dickish",
+  "dickjuice",
+  "dickless",
+  "dicklick",
+  "dicklicker",
+  "dickman",
+  "dickmilk",
+  "dickpic",
+  "dickripper",
+  "dicks",
+  "dicksipper",
+  "dickslap",
+  "dickslicker",
+  "dickwad",
+  "dickweasel",
+  "dickweed",
+  "dickwhipper",
+  "dickwod",
+  "dickzipper",
+  "diddle",
+  "dike",
+  "dild0",
+  "dild0s",
+  "dildo",
+  "dildos",
+  "dilf",
+  "diligaf",
+  "dilld0",
+  "dilld0s",
+  "dillweed",
+  "dimwit",
+  "dingle",
+  "dingleberries",
+  "dingleberry",
+  "dink",
+  "dinks",
+  "dipship",
+  "dipshit",
+  "dipstick",
+  "dirsa",
+  "dirty pillows",
+  "dirty sanchez",
+  "dix",
+  "dixiedike",
+  "dixiedyke",
+  "dlck",
+  "dog style",
+  "dog-fucker",
+  "doggie style",
+  "doggie",
+  "doggie-style",
+  "doggiestyle",
+  "doggin",
+  "dogging",
+  "doggy style",
+  "doggy-style",
+  "doggystyle",
+  "dolcett",
+  "domination",
+  "dominatricks",
+  "dominatrics",
+  "dominatrix",
+  "dommes",
+  "dong",
+  "donkey punch",
+  "donkeypunch",
+  "donkeyribber",
+  "doochbag",
+  "doodoo",
+  "doofus",
+  "dookie",
+  "doosh",
+  "dot head",
+  "dot heads",
+  "dothead",
+  "dotheads",
+  "double dong",
+  "double penetration",
+  "doubledong",
+  "doublepenetration",
+  "douch3",
+  "douche bag",
+  "douche",
+  "douche-fag",
+  "douchebag",
+  "douchebags",
+  "douchewaffle",
+  "douchey",
+  "dp action",
+  "dp",
+  "dpaction",
+  "dragqueen",
+  "dragqween",
+  "dripdick",
+  "drug",
+  "dry hump",
+  "dryhump",
+  "duche",
+  "dudette",
+  "dumass",
+  "dumb ass",
+  "dumbass",
+  "dumbasses",
+  "dumbbitch",
+  "dumbfuck",
+  "dumbshit",
+  "dummy",
+  "dumshit",
+  "dune coon",
+  "dune coons",
+  "dupa",
+  "dvda",
+  "dyefly",
+  "dyke",
+  "dykes",
+  "dziwka",
+  "earotics",
+  "easyslut",
+  "eat my ass",
+  "eat my",
+  "eatballs",
+  "eatme",
+  "eatmyass",
+  "eatpussy",
+  "ecchi",
+  "ejackulate",
+  "ejaculate",
+  "ejaculated",
+  "ejaculates",
+  "ejaculating",
+  "ejaculatings",
+  "ejaculation",
+  "ejaculations",
+  "ejakulate",
+  "ekrem",
+  "ekto",
+  "enculer",
+  "enema",
+  "enlargement",
+  "erect",
+  "erection",
+  "ero",
+  "erotic",
+  "erotism",
+  "escort",
+  "esqua",
+  "essohbee",
+  "ethical slut",
+  "evl",
+  "excrement",
+  "exkwew",
+  "explosion",
+  "extacy",
+  "extasy",
+  "f u c k e r",
+  "f u c k e",
+  "f u c k",
+  "f u k",
+  "f*ck",
+  "f-u-c-k",
+  "f.u.c.k",
+  "f4nny",
+  "f_u_c_k",
+  "facefucker",
+  "fack",
+  "faeces",
+  "faen",
+  "fag",
+  "fag1t",
+  "fagbag",
+  "faget",
+  "fagfucker",
+  "fagg",
+  "fagg1t",
+  "fagged",
+  "fagging",
+  "faggit",
+  "faggitt",
+  "faggot",
+  "faggotcock",
+  "faggs",
+  "fagit",
+  "fagot",
+  "fagots",
+  "fags",
+  "fagt",
+  "fagtard",
+  "fagz",
+  "faig",
+  "faigs",
+  "faigt",
+  "fanculo",
+  "fannybandit",
+  "fannyflaps",
+  "fannyfucker",
+  "fanyy",
+  "fartknocker",
+  "farty",
+  "fastfuck",
+  "fatah",
+  "fatass",
+  "fatfuck",
+  "fatfucker",
+  "fatso",
+  "fck",
+  "fckcum",
+  "fckd",
+  "fcuk",
+  "fcuker",
+  "fcuking",
+  "fecal",
+  "feces",
+  "feck",
+  "fecker",
+  "feg",
+  "felatio",
+  "felch",
+  "felcher",
+  "felching",
+  "fellate",
+  "fellatio",
+  "feltch",
+  "feltcher",
+  "feltching",
+  "female squirting",
+  "femalesquirtin",
+  "femalesquirting",
+  "femdom",
+  "fetish",
+  "ficken",
+  "figging",
+  "fingerbang",
+  "fingerfood",
+  "fingerfuck",
+  "fingerfucked",
+  "fingerfucker",
+  "fingerfuckers",
+  "fingerfucking",
+  "fingerfucks",
+  "fingering",
+  "fisted",
+  "fister",
+  "fistfuck",
+  "fistfucked",
+  "fistfucker",
+  "fistfuckers",
+  "fistfucking",
+  "fistfuckings",
+  "fistfucks",
+  "fisting",
+  "fisty",
+  "fitt",
+  "flamer",
+  "flange",
+  "flasher",
+  "flikker",
+  "flipping the bird",
+  "floo",
+  "floozy",
+  "flydie",
+  "flydye",
+  "foad",
+  "fok",
+  "fondle",
+  "foobar",
+  "fook",
+  "fooker",
+  "foot fetish",
+  "footaction",
+  "footfetish",
+  "footfuck",
+  "footfucker",
+  "footjob",
+  "footlicker",
+  "footstar",
+  "foreskin",
+  "forni",
+  "fornicate",
+  "fotze",
+  "foursome",
+  "fourtwenty",
+  "freakfuck",
+  "freakyfucker",
+  "freefuck",
+  "freex",
+  "frigg",
+  "frigga",
+  "frigger",
+  "frotting",
+  "fubar",
+  "fucck",
+  "fuck buttons",
+  "fuck",
+  "fuck-tard",
+  "fucka",
+  "fuckable",
+  "fuckass",
+  "fuckbag",
+  "fuckbook",
+  "fuckboy",
+  "fuckbrain",
+  "fuckbuddy",
+  "fuckbutt",
+  "fuckd",
+  "fucked",
+  "fuckedup",
+  "fucker",
+  "fuckers",
+  "fuckersucker",
+  "fuckface",
+  "fuckfest",
+  "fuckfreak",
+  "fuckfriend",
+  "fuckhead",
+  "fuckheads",
+  "fuckher",
+  "fuckhole",
+  "fuckin",
+  "fuckina",
+  "fucking",
+  "fuckingbitch",
+  "fuckings",
+  "fuckingshitmotherfucker",
+  "fuckinnuts",
+  "fuckinright",
+  "fuckit",
+  "fuckknob",
+  "fuckme",
+  "fuckmehard",
+  "fuckmonkey",
+  "fuckn",
+  "fucknugget",
+  "fucknut",
+  "fucknuts",
+  "fucknutt",
+  "fucknutz",
+  "fuckoff",
+  "fuckpig",
+  "fuckr",
+  "fucks",
+  "fuckstick",
+  "fucktard",
+  "fucktards",
+  "fuckup",
+  "fuckwad",
+  "fuckwhit",
+  "fuckwhore",
+  "fuckwit",
+  "fuckwitt",
+  "fuckyou",
+  "fudge packer",
+  "fudgepacker",
+  "fugly",
+  "fuk",
+  "fukah",
+  "fuken",
+  "fuker",
+  "fukin",
+  "fuking",
+  "fukk",
+  "fukkah",
+  "fukken",
+  "fukker",
+  "fukkin",
+  "fuks",
+  "fuktard",
+  "fuktards",
+  "fukwhit",
+  "fukwit",
+  "funeral",
+  "funfuck",
+  "fungus",
+  "futanari",
+  "futkretzn",
+  "fuuck",
+  "fux",
+  "fux0r",
+  "fvck",
+  "fvk",
+  "fxck",
+  "g-spot",
+  "g00k",
+  "gae",
+  "gai",
+  "gang bang",
+  "gangbang",
+  "gangbanged",
+  "gangbanger",
+  "gangbangs",
+  "gangsta",
+  "ganja",
+  "gator bait",
+  "gatorbait",
+  "gay sex",
+  "gayboy",
+  "gaygirl",
+  "gaylord",
+  "gaymuthafuckinwhore",
+  "gays",
+  "gaysex",
+  "gayz",
+  "geezer",
+  "geni",
+  "genital",
+  "genitals",
+  "getiton",
+  "gey",
+  "gfy",
+  "ghay",
+  "ghey",
+  "giant cock",
+  "gigolo",
+  "ginzo",
+  "ginzos",
+  "gipp",
+  "gippo",
+  "gippos",
+  "gipps",
+  "girl on top",
+  "girl on",
+  "girls gone wild",
+  "givehead",
+  "glans",
+  "glazeddonut",
+  "goatcx",
+  "goatse",
+  "gob",
+  "god dammit",
+  "god damn",
+  "god damnit",
+  "god-dam",
+  "god-damned",
+  "godam",
+  "godammit",
+  "godamn",
+  "godamnit",
+  "goddam",
+  "goddamit",
+  "goddamm",
+  "goddammit",
+  "goddamn",
+  "goddamned",
+  "goddamnes",
+  "goddamnit",
+  "goddamnmuthafucker",
+  "godsdamn",
+  "gokkun",
+  "golden shower",
+  "goldenshower",
+  "golliwog",
+  "golliwogs",
+  "gonad",
+  "gonads",
+  "gonorrehea",
+  "gonzagas",
+  "goo girl",
+  "gooch",
+  "goodpoop",
+  "gook eye",
+  "gook eyes",
+  "gook",
+  "gookeye",
+  "gookeyes",
+  "gookies",
+  "gooks",
+  "gooky",
+  "gora",
+  "goras",
+  "goregasm",
+  "gotohell",
+  "goy",
+  "goyim",
+  "greaseball",
+  "greaseballs",
+  "gringo",
+  "gringos",
+  "groe",
+  "groid",
+  "groids",
+  "grope",
+  "gross",
+  "grostulation",
+  "group sex",
+  "gspot",
+  "gstring",
+  "gtfo",
+  "gub",
+  "gubba",
+  "gubbas",
+  "gubs",
+  "guido",
+  "guiena",
+  "guineas",
+  "guizi",
+  "gummer",
+  "guro",
+  "gwailo",
+  "gwailos",
+  "gweilo",
+  "gweilos",
+  "gyopo",
+  "gyopos",
+  "gyp",
+  "gyped",
+  "gypo",
+  "gypos",
+  "gypp",
+  "gypped",
+  "gyppie",
+  "gyppies",
+  "gyppo",
+  "gyppos",
+  "gyppy",
+  "gyppys",
+  "gypsys",
+  "h e l l",
+  "h o m",
+  "h00r",
+  "h0ar",
+  "h0m0",
+  "h0mo",
+  "h0r",
+  "h0re",
+  "h4x0r",
+  "hadji",
+  "hadjis",
+  "hairyback",
+  "hairybacks",
+  "haji",
+  "hajis",
+  "hajji",
+  "hajjis",
+  "half breed",
+  "half caste",
+  "halfbreed",
+  "halfcaste",
+  "hamas",
+  "hand job",
+  "handjob",
+  "haole",
+  "haoles",
+  "hapa",
+  "hard core",
+  "hardcore",
+  "hardcoresex",
+  "hardon",
+  "harem",
+  "he11",
+  "headfuck",
+  "hebe",
+  "hebes",
+  "heeb",
+  "heebs",
+  "hell",
+  "hells",
+  "helvete",
+  "henhouse",
+  "hentai",
+  "heroin",
+  "herp",
+  "herpes",
+  "herpy",
+  "heshe",
+  "hijacker",
+  "hijacking",
+  "hillbillies",
+  "hillbilly",
+  "hindoo",
+  "hiscock",
+  "hitler",
+  "hitlerism",
+  "hitlerist",
+  "ho",
+  "hobag",
+  "hodgie",
+  "hoe",
+  "hoer",
+  "hoes",
+  "holestuffer",
+  "hom0",
+  "homey",
+  "homicide",
+  "homo",
+  "homobangers",
+  "homodumbshit",
+  "homoey",
+  "honger",
+  "honkers",
+  "honkey",
+  "honkeys",
+  "honkie",
+  "honkies",
+  "honky",
+  "hooch",
+  "hooker",
+  "hookers",
+  "hoor",
+  "hoore",
+  "hootch",
+  "hooter",
+  "hooters",
+  "hore",
+  "hori",
+  "horis",
+  "hork",
+  "horndawg",
+  "horndog",
+  "horney",
+  "horniest",
+  "horny",
+  "horseshit",
+  "hosejob",
+  "hoser",
+  "hot carl",
+  "hot chick",
+  "hotcarl",
+  "hotdamn",
+  "hotpussy",
+  "hotsex",
+  "hottotrot",
+  "how to kill",
+  "how to murder",
+  "huevon",
+  "huge fat",
+  "hugefat",
+  "hui",
+  "hummer",
+  "humped",
+  "humper",
+  "humpher",
+  "humphim",
+  "humpin",
+  "humping",
+  "husky",
+  "hussy",
+  "hustler",
+  "hymen",
+  "hymie",
+  "hymies",
+  "iblowu",
+  "ike",
+  "ikes",
+  "ikey",
+  "ikeymo",
+  "ikeymos",
+  "ikwe",
+  "illegal",
+  "illegals",
+  "inbred",
+  "incest",
+  "indon",
+  "indons",
+  "injun",
+  "injuns",
+  "insest",
+  "intercourse",
+  "interracial",
+  "intheass",
+  "inthebuff",
+  "israels",
+  "j3rk0ff",
+  "jack off",
+  "jack-off",
+  "jackass",
+  "jackhole",
+  "jackoff",
+  "jackshit",
+  "jacktheripper",
+  "jail bait",
+  "jailbait",
+  "jap",
+  "japcrap",
+  "japie",
+  "japies",
+  "japs",
+  "jebus",
+  "jelly donut",
+  "jerk off",
+  "jerk",
+  "jerk-off",
+  "jerk0ff",
+  "jerked",
+  "jerkoff",
+  "jerries",
+  "jerry",
+  "jesuschrist",
+  "jewed",
+  "jewess",
+  "jig",
+  "jiga",
+  "jigaboo",
+  "jigaboos",
+  "jigarooni",
+  "jigaroonis",
+  "jigg",
+  "jigga",
+  "jiggabo",
+  "jiggaboo",
+  "jiggabos",
+  "jiggas",
+  "jigger",
+  "jiggerboo",
+  "jiggers",
+  "jiggs",
+  "jiggy",
+  "jigs",
+  "jihad",
+  "jijjiboo",
+  "jijjiboos",
+  "jimfish",
+  "jisim",
+  "jism",
+  "jiss",
+  "jiz",
+  "jizim",
+  "jizin",
+  "jizjuice",
+  "jizm",
+  "jizn",
+  "jizz",
+  "jizzd",
+  "jizzed",
+  "jizzim",
+  "jizzin",
+  "jizzn",
+  "jizzum",
+  "jugg",
+  "juggs",
+  "jugs",
+  "jungle bunnies",
+  "jungle bunny",
+  "junglebunny",
+  "junkie",
+  "junky",
+  "kacap",
+  "kacapas",
+  "kacaps",
+  "kaffer",
+  "kaffir",
+  "kaffre",
+  "kafir",
+  "kanake",
+  "kanker",
+  "katsap",
+  "katsaps",
+  "kawk",
+  "khokhol",
+  "khokhols",
+  "kicking",
+  "kigger",
+  "kike",
+  "kikes",
+  "killer",
+  "kills",
+  "kimchis",
+  "kinbaku",
+  "kink",
+  "kinkster",
+  "kinky",
+  "kissass",
+  "kkk",
+  "klan",
+  "klansman",
+  "klansmen",
+  "klanswoman",
+  "klanswomen",
+  "klootzak",
+  "knobbing",
+  "knobead",
+  "knobed",
+  "knobend",
+  "knobhead",
+  "knobjocky",
+  "knobjokey",
+  "knobz",
+  "knockers",
+  "knulle",
+  "kock",
+  "kondum",
+  "kondums",
+  "kooch",
+  "kooches",
+  "koon",
+  "kootch",
+  "krap",
+  "krappy",
+  "kraut",
+  "krauts",
+  "kuffar",
+  "kuk",
+  "kuksuger",
+  "kum",
+  "kumbubble",
+  "kumbullbe",
+  "kumer",
+  "kummer",
+  "kumming",
+  "kumquat",
+  "kums",
+  "kunilingus",
+  "kunnilingus",
+  "kunt",
+  "kunts",
+  "kuntz",
+  "kurac",
+  "kurwa",
+  "kushi",
+  "kushis",
+  "kusi",
+  "kwa",
+  "kwai lo",
+  "kwai los",
+  "ky",
+  "kyke",
+  "kykes",
+  "kyopo",
+  "kyopos",
+  "kyrpa",
+  "l3i+ch",
+  "l3i\\+ch",
+  "l3itch",
+  "labia",
+  "lapdance",
+  "lds",
+  "leather restraint",
+  "leather straight jacket",
+  "leather straight",
+  "leatherrestraint",
+  "lebo",
+  "lebos",
+  "lech",
+  "lemon party",
+  "lemonparty",
+  "leper",
+  "lesbain",
+  "lesbayn",
+  "lesbian",
+  "lesbin",
+  "lesbo",
+  "lez",
+  "lezbe",
+  "lezbefriends",
+  "lezbian",
+  "lezbians",
+  "lezbo",
+  "lezbos",
+  "lezz",
+  "lezzian",
+  "lezzie",
+  "lezzies",
+  "lezzo",
+  "lezzy",
+  "libido",
+  "licker",
+  "licking",
+  "lickme",
+  "lilniglet",
+  "limey",
+  "limpdick",
+  "limy",
+  "lingerie",
+  "lipshits",
+  "lipshitz",
+  "livesex",
+  "lmfao",
+  "loadedgun",
+  "loin",
+  "loins",
+  "lolita",
+  "lovebone",
+  "lovegoo",
+  "lovegun",
+  "lovejuice",
+  "lovemaking",
+  "lovemuscle",
+  "lovepistol",
+  "loverocket",
+  "lowlife",
+  "lsd",
+  "lubejob",
+  "lubra",
+  "lucifer",
+  "luckycammeltoe",
+  "lugan",
+  "lugans",
+  "lust",
+  "lusting",
+  "lusty",
+  "lynch",
+  "m-fucking",
+  "m0f0",
+  "m0fo",
+  "m45terbate",
+  "ma5terb8",
+  "ma5terbate",
+  "mabuno",
+  "mabunos",
+  "macaca",
+  "macacas",
+  "magicwand",
+  "mahbuno",
+  "mahbunos",
+  "make me come",
+  "makemecome",
+  "makemecum",
+  "male squirting",
+  "mamhoon",
+  "mams",
+  "manhater",
+  "manpaste",
+  "maricon",
+  "maricón",
+  "marijuana",
+  "masochist",
+  "masokist",
+  "massa",
+  "massterbait",
+  "masstrbait",
+  "masstrbate",
+  "mastabate",
+  "mastabater",
+  "master-bate",
+  "masterb8",
+  "masterbaiter",
+  "masterbat",
+  "masterbat3",
+  "masterbate",
+  "masterbates",
+  "masterbating",
+  "masterbation",
+  "masterbations",
+  "masterblaster",
+  "mastrabator",
+  "masturbat",
+  "masturbate",
+  "masturbating",
+  "masturbation",
+  "mattressprincess",
+  "mau mau",
+  "mau maus",
+  "maumau",
+  "maumaus",
+  "mcfagget",
+  "meatbeatter",
+  "meatrack",
+  "menage a trois",
+  "menage",
+  "menses",
+  "menstruate",
+  "menstruation",
+  "merd",
+  "meth",
+  "mgger",
+  "mggor",
+  "mibun",
+  "mick",
+  "mickeyfinn",
+  "mideast",
+  "mierda",
+  "milf",
+  "minge",
+  "minger",
+  "missionary position",
+  "missionary",
+  "mo-fo",
+  "mockey",
+  "mockie",
+  "mocky",
+  "mof0",
+  "mofo",
+  "moky",
+  "molest",
+  "molestation",
+  "molester",
+  "molestor",
+  "moneyshot",
+  "monkleigh",
+  "moolie",
+  "moon cricket",
+  "moon crickets",
+  "mooncricket",
+  "mooncrickets",
+  "mormon",
+  "moron",
+  "moskal",
+  "moskals",
+  "moslem",
+  "mosshead",
+  "motha fucker",
+  "motha fuker",
+  "motha fukkah",
+  "motha fukker",
+  "mothafuck",
+  "mothafucka",
+  "mothafuckas",
+  "mothafuckaz",
+  "mothafucked",
+  "mothafucker",
+  "mothafuckers",
+  "mothafuckin",
+  "mothafucking",
+  "mothafuckings",
+  "mothafucks",
+  "mother fucker",
+  "mother fukah",
+  "mother fuker",
+  "mother fukkah",
+  "mother fukker",
+  "mother-fucker",
+  "motherfuck",
+  "motherfucka",
+  "motherfucked",
+  "motherfucker",
+  "motherfuckers",
+  "motherfuckin",
+  "motherfucking",
+  "motherfuckings",
+  "motherfuckka",
+  "motherfucks",
+  "motherfvcker",
+  "motherlovebone",
+  "mothrfucker",
+  "mouliewop",
+  "mound of venus",
+  "moundofvenus",
+  "mr hands",
+  "mrhands",
+  "mtherfucker",
+  "mthrfuck",
+  "mthrfucker",
+  "mthrfucking",
+  "mtrfck",
+  "mtrfuck",
+  "mtrfucker",
+  "muff diver",
+  "muff",
+  "muffdive",
+  "muffdiver",
+  "muffdiving",
+  "muffindiver",
+  "mufflikcer",
+  "muie",
+  "mulatto",
+  "mulkku",
+  "muncher",
+  "mung",
+  "munging",
+  "munt",
+  "munter",
+  "murder",
+  "murderer",
+  "muschi",
+  "mutha fucker",
+  "mutha fukah",
+  "mutha fuker",
+  "mutha fukkah",
+  "mutha fukker",
+  "mutha",
+  "muthafecker",
+  "muthafuckaz",
+  "muthafucker",
+  "muthafuckker",
+  "muther",
+  "mutherfucker",
+  "mutherfucking",
+  "muthrfucking",
+  "mzungu",
+  "mzungus",
+  "n1gga",
+  "n1gger",
+  "n1gr",
+  "nad",
+  "nads",
+  "naked",
+  "nambla",
+  "nastt",
+  "nasty",
+  "nastybitch",
+  "nastyho",
+  "nastyslut",
+  "nastywhore",
+  "nawashi",
+  "nazi",
+  "nazis",
+  "nazism",
+  "necked",
+  "necro",
+  "negres",
+  "negress",
+  "negro",
+  "negroes",
+  "negroid",
+  "negros",
+  "neonazi",
+  "nepesaurio",
+  "nig nog",
+  "nig",
+  "niga",
+  "nigar",
+  "nigars",
+  "nigas",
+  "niger",
+  "nigerian",
+  "nigerians",
+  "nigers",
+  "nigette",
+  "nigettes",
+  "nigg",
+  "nigg3r",
+  "nigg4h",
+  "nigga",
+  "niggah",
+  "niggahs",
+  "niggar",
+  "niggaracci",
+  "niggard",
+  "niggarded",
+  "niggarding",
+  "niggardliness",
+  "niggardlinesss",
+  "niggardly",
+  "niggards",
+  "niggars",
+  "niggas",
+  "niggaz",
+  "nigger",
+  "niggerhead",
+  "niggerhole",
+  "niggers",
+  "niggle",
+  "niggled",
+  "niggles",
+  "niggling",
+  "nigglings",
+  "niggor",
+  "niggress",
+  "niggresses",
+  "nigguh",
+  "nigguhs",
+  "niggur",
+  "niggurs",
+  "niglet",
+  "nignog",
+  "nigor",
+  "nigors",
+  "nigr",
+  "nigra",
+  "nigras",
+  "nigre",
+  "nigres",
+  "nigress",
+  "nigs",
+  "nigur",
+  "niiger",
+  "niigr",
+  "nimphomania",
+  "nimrod",
+  "ninny",
+  "nip",
+  "nipple",
+  "nipplering",
+  "nipples",
+  "nips",
+  "nittit",
+  "nlgger",
+  "nlggor",
+  "nob jokey",
+  "nob",
+  "nobhead",
+  "nobjocky",
+  "nobjokey",
+  "nofuckingway",
+  "nog",
+  "nookey",
+  "nookie",
+  "nooky",
+  "noonan",
+  "nooner",
+  "nsfw images",
+  "nsfw",
+  "nude",
+  "nudger",
+  "nudie",
+  "nudies",
+  "nudity",
+  "numbnuts",
+  "nut sack",
+  "nutfucker",
+  "nutsack",
+  "nymph",
+  "nympho",
+  "nymphomania",
+  "o c k",
+  "octopussy",
+  "omorashi",
+  "one cup two girls",
+  "one guy one jar",
+  "one guy",
+  "one jar",
+  "ontherag",
+  "orafis",
+  "oral",
+  "orally",
+  "orga",
+  "orgasim",
+  "orgasim;",
+  "orgasims",
+  "orgasm",
+  "orgasmic",
+  "orgasms",
+  "orgasum",
+  "orgies",
+  "orgy",
+  "oriface",
+  "orifice",
+  "orifiss",
+  "orospu",
+  "osama",
+  "ovum",
+  "ovums",
+  "p e n i s",
+  "p i s",
+  "p u s s y",
+  "p.u.s.s.y.",
+  "p0rn",
+  "packi",
+  "packie",
+  "packy",
+  "paddy",
+  "paedophile",
+  "paki",
+  "pakie",
+  "pakis",
+  "paky",
+  "palesimian",
+  "pancake face",
+  "pancake faces",
+  "panooch",
+  "pansies",
+  "pansy",
+  "panti",
+  "pantie",
+  "panties",
+  "panty",
+  "paska",
+  "pastie",
+  "pasty",
+  "payo",
+  "pcp",
+  "pearlnecklace",
+  "peck",
+  "pecker",
+  "peckerhead",
+  "peckerwood",
+  "pedo",
+  "pedobear",
+  "pedophile",
+  "pedophilia",
+  "pedophiliac",
+  "peeenus",
+  "peeenusss",
+  "peehole",
+  "peenus",
+  "peepee",
+  "peepshow",
+  "peepshpw",
+  "pegging",
+  "peinus",
+  "pen1s",
+  "penas",
+  "pendejo",
+  "pendy",
+  "penetrate",
+  "penetration",
+  "peni5",
+  "penial",
+  "penile",
+  "penis",
+  "penis-breath",
+  "penises",
+  "penisfucker",
+  "penisland",
+  "penislick",
+  "penislicker",
+  "penispuffer",
+  "penthouse",
+  "penus",
+  "penuus",
+  "perse",
+  "perv",
+  "perversion",
+  "peyote",
+  "phalli",
+  "phallic",
+  "phone sex",
+  "phonesex",
+  "phuc",
+  "phuck",
+  "phuk",
+  "phuked",
+  "phuker",
+  "phuking",
+  "phukked",
+  "phukker",
+  "phukking",
+  "phuks",
+  "phungky",
+  "phuq",
+  "pi55",
+  "picaninny",
+  "piccaninny",
+  "picka",
+  "pickaninnies",
+  "pickaninny",
+  "piece of shit",
+  "pieceofshit",
+  "piefke",
+  "piefkes",
+  "pierdol",
+  "pigfucker",
+  "piker",
+  "pikey",
+  "piky",
+  "pillowbiter",
+  "pillu",
+  "pimmel",
+  "pimp",
+  "pimped",
+  "pimper",
+  "pimpis",
+  "pimpjuic",
+  "pimpjuice",
+  "pimpsimp",
+  "pindick",
+  "pinko",
+  "pis",
+  "pises",
+  "pisin",
+  "pising",
+  "pisof",
+  "piss pig",
+  "piss",
+  "piss-off",
+  "pissed",
+  "pisser",
+  "pissers",
+  "pisses",
+  "pissflaps",
+  "pisshead",
+  "pissin",
+  "pissing",
+  "pissoff",
+  "pisspig",
+  "pistol",
+  "pizda",
+  "playboy",
+  "playgirl",
+  "pleasure chest",
+  "pleasurechest",
+  "pms",
+  "pocha",
+  "pochas",
+  "pocho",
+  "pochos",
+  "pocketpool",
+  "pohm",
+  "pohms",
+  "polac",
+  "polack",
+  "polacks",
+  "polak",
+  "pole smoker",
+  "polesmoker",
+  "pollock",
+  "pollocks",
+  "pommie grant",
+  "pommie grants",
+  "pommie",
+  "pommies",
+  "pommy",
+  "ponyplay",
+  "poof",
+  "poon",
+  "poonani",
+  "poonany",
+  "poontang",
+  "poontsee",
+  "poop chute",
+  "poopchute",
+  "pooper",
+  "pooperscooper",
+  "pooping",
+  "poorwhitetrash",
+  "popimp",
+  "porch monkey",
+  "porch monkies",
+  "porchmonkey",
+  "porn",
+  "pornflick",
+  "pornking",
+  "porno",
+  "pornography",
+  "pornos",
+  "pornprincess",
+  "pound town",
+  "poundtown",
+  "pplicker",
+  "pr0n",
+  "pr1c",
+  "pr1ck",
+  "pr1k",
+  "prairie nigger",
+  "prairie niggers",
+  "premature",
+  "preteen",
+  "pric",
+  "prick",
+  "prickhead",
+  "pricks",
+  "prig",
+  "prince albert piercing",
+  "pron",
+  "propaganda",
+  "prostitute",
+  "pthc",
+  "pu55i",
+  "pu55y",
+  "pube",
+  "pubes",
+  "pubic",
+  "pubiclice",
+  "pubis",
+  "pud",
+  "pudboy",
+  "pudd",
+  "puddboy",
+  "puke",
+  "pula",
+  "pule",
+  "punani",
+  "punanny",
+  "punany",
+  "punkass",
+  "punky",
+  "punta",
+  "puntang",
+  "purinapricness",
+  "pusies",
+  "puss",
+  "pusse",
+  "pussee",
+  "pussi",
+  "pussie",
+  "pussies",
+  "pussy",
+  "pussycat",
+  "pussydestroyer",
+  "pussyeater",
+  "pussyfucker",
+  "pussylicker",
+  "pussylicking",
+  "pussylips",
+  "pussylover",
+  "pussypounder",
+  "pussys",
+  "pusy",
+  "puta",
+  "puto",
+  "puuke",
+  "puuker",
+  "qahbeh",
+  "quashie",
+  "queaf",
+  "queef",
+  "queero",
+  "queers",
+  "queerz",
+  "quickie",
+  "quicky",
+  "quiff",
+  "quim",
+  "qweers",
+  "qweerz",
+  "qweir",
+  "r-tard",
+  "r-tards",
+  "r5e",
+  "ra8s",
+  "racial",
+  "radicals",
+  "raghead",
+  "ragheads",
+  "raging boner",
+  "raging",
+  "ragingboner",
+  "randy",
+  "rape",
+  "raped",
+  "raper",
+  "raping",
+  "rapist",
+  "raunch",
+  "rautenberg",
+  "rearend",
+  "rearentry",
+  "recktum",
+  "rectal",
+  "rectum",
+  "rectus",
+  "redleg",
+  "redlegs",
+  "redlight",
+  "redneck",
+  "rednecks",
+  "redskin",
+  "redskins",
+  "reefer",
+  "reestie",
+  "reetard",
+  "refugee",
+  "reich",
+  "renob",
+  "rentafuck",
+  "rere",
+  "retard",
+  "retarded",
+  "retards",
+  "retardz",
+  "reverse cowgirl",
+  "reversecowgirl",
+  "rigger",
+  "rimjaw",
+  "rimjob",
+  "rimming",
+  "ritard",
+  "rosebuds",
+  "rosy palm and her 5 sisters",
+  "rosy palm",
+  "rosypalm",
+  "rosypalmandher5sisters",
+  "rosypalmandherefivesisters",
+  "round eyes",
+  "roundeye",
+  "rtard",
+  "rtards",
+  "rump",
+  "rumprammer",
+  "ruski",
+  "russki",
+  "russkie",
+  "rusty trombone",
+  "rustytrombone",
+  "s h i t",
+  "s hit",
+  "s&m",
+  "s-h-1-t",
+  "s-h-i-t",
+  "s-o-b",
+  "s.h.i.t.",
+  "s.o.b.",
+  "s0b",
+  "s_h_i_t",
+  "sac",
+  "sadis",
+  "sadism",
+  "sadist",
+  "sadom",
+  "sambo",
+  "sambos",
+  "samckdaddy",
+  "sanchez",
+  "sand nigger",
+  "sand niggers",
+  "sandm",
+  "sandnigger",
+  "santorum",
+  "scag",
+  "scallywag",
+  "scank",
+  "scantily",
+  "scat",
+  "schaffer",
+  "scheiss",
+  "schizo",
+  "schlampe",
+  "schlong",
+  "schmuck",
+  "schvartse",
+  "schvartsen",
+  "schwartze",
+  "schwartzen",
+  "scissoring",
+  "screwed",
+  "screwing",
+  "screwyou",
+  "scroat",
+  "scrog",
+  "scrot",
+  "scrote",
+  "scrotum",
+  "scrud",
+  "seduce",
+  "semen",
+  "seppo",
+  "seppos",
+  "septics",
+  "sex",
+  "sexed",
+  "sexfarm",
+  "sexhound",
+  "sexhouse",
+  "sexi",
+  "sexing",
+  "sexkitten",
+  "sexo",
+  "sexpot",
+  "sexslave",
+  "sextogo",
+  "sextoy",
+  "sextoys",
+  "sexual",
+  "sexually",
+  "sexwhore",
+  "sexx",
+  "sexxi",
+  "sexxx",
+  "sexxxi",
+  "sexxxy",
+  "sexxy",
+  "sexy",
+  "sexymoma",
+  "sexyslim",
+  "sh!+",
+  "sh!t",
+  "sh1t",
+  "sh1ter",
+  "sh1ts",
+  "sh1tter",
+  "sh1tz",
+  "shag",
+  "shagger",
+  "shaggin",
+  "shagging",
+  "shamedame",
+  "sharmuta",
+  "sharmute",
+  "shat",
+  "shav",
+  "shaved beaver",
+  "shaved pussy",
+  "shaved",
+  "shavedbeaver",
+  "shavedpussy",
+  "shawtypimp",
+  "sheeney",
+  "shemale",
+  "shhit",
+  "shi+",
+  "shibari",
+  "shinola",
+  "shipal",
+  "shit ass",
+  "shit",
+  "shitass",
+  "shitbag",
+  "shitbagger",
+  "shitblimp",
+  "shitbrain",
+  "shitbreath",
+  "shitcan",
+  "shitcunt",
+  "shitdick",
+  "shite",
+  "shiteater",
+  "shited",
+  "shitey",
+  "shitface",
+  "shitfaced",
+  "shitfit",
+  "shitforbrains",
+  "shitfuck",
+  "shitfucker",
+  "shitfull",
+  "shithapens",
+  "shithappens",
+  "shithead",
+  "shithole",
+  "shithouse",
+  "shiting",
+  "shitings",
+  "shitlist",
+  "shitola",
+  "shitoutofluck",
+  "shits",
+  "shitspitter",
+  "shitstain",
+  "shitt",
+  "shitted",
+  "shitter",
+  "shitters",
+  "shittiest",
+  "shitting",
+  "shittings",
+  "shitty",
+  "shity",
+  "shitz",
+  "shiz",
+  "shiznit",
+  "shortfuck",
+  "shota",
+  "shrimping",
+  "shylock",
+  "shylocks",
+  "shyt",
+  "shyte",
+  "shytty",
+  "shyty",
+  "sissy",
+  "sixsixsix",
+  "sixtynine",
+  "sixtyniner",
+  "skag",
+  "skanck",
+  "skank",
+  "skankbitch",
+  "skankee",
+  "skankey",
+  "skankfuck",
+  "skanks",
+  "skankwhore",
+  "skanky",
+  "skankybitch",
+  "skankywhore",
+  "skeet",
+  "skinflute",
+  "skribz",
+  "skullfuck",
+  "skum",
+  "skumbag",
+  "skurwysyn",
+  "skwa",
+  "skwe",
+  "slag",
+  "slant",
+  "slanteye",
+  "slanty",
+  "slapper",
+  "slaughter",
+  "slave",
+  "slavedriver",
+  "sleaze",
+  "sleazy",
+  "sleezebag",
+  "sleezeball",
+  "slideitin",
+  "slimeball",
+  "slimebucket",
+  "slopehead",
+  "slopeheads",
+  "sloper",
+  "slopers",
+  "slopes",
+  "slopey",
+  "slopeys",
+  "slopies",
+  "slopy",
+  "slut",
+  "slutbag",
+  "slutdumper",
+  "slutkiss",
+  "sluts",
+  "slutt",
+  "slutting",
+  "slutty",
+  "slutwear",
+  "slutwhore",
+  "slutz",
+  "smack",
+  "smackthemonkey",
+  "smeg",
+  "smegma",
+  "smoker",
+  "smut",
+  "smutty",
+  "snatch",
+  "snatchpatch",
+  "snigger",
+  "sniggered",
+  "sniggering",
+  "sniggers",
+  "sniper",
+  "snowback",
+  "snowballing",
+  "snownigger",
+  "snuff",
+  "sob",
+  "socksucker",
+  "sodom",
+  "sodomise",
+  "sodomite",
+  "sodomize",
+  "sodomy",
+  "son of a bitch",
+  "son of a whore",
+  "son-of-a-bitch",
+  "son-of-a-whore",
+  "sonofabitch",
+  "sonofbitch",
+  "sooties",
+  "sooty",
+  "souse",
+  "soused",
+  "spac",
+  "spade",
+  "spades",
+  "spaghettibender",
+  "spaghettinigger",
+  "spank",
+  "spankthemonkey",
+  "spearchucker",
+  "spearchuckers",
+  "sperm",
+  "spermacide",
+  "spermbag",
+  "spermhearder",
+  "spermherder",
+  "sphencter",
+  "spic",
+  "spick",
+  "spicks",
+  "spics",
+  "spierdalaj",
+  "spig",
+  "spigotty",
+  "spik",
+  "spiks",
+  "spitter",
+  "splittail",
+  "splooge moose",
+  "splooge",
+  "spludge",
+  "spooge",
+  "spread legs",
+  "spreadeagle",
+  "spunk",
+  "spunky",
+  "sqeh",
+  "squa",
+  "squarehead",
+  "squareheads",
+  "squaw",
+  "squinty",
+  "squirting",
+  "stagg",
+  "steamy",
+  "stfu",
+  "stiffy",
+  "stoned",
+  "stoner",
+  "strap on",
+  "strapon",
+  "strappado",
+  "stringer",
+  "strip club",
+  "stripclub",
+  "stroke",
+  "stroking",
+  "stuinties",
+  "stupid",
+  "stupidfuck",
+  "stupidfucker",
+  "style doggy",
+  "suck",
+  "suckdick",
+  "sucked",
+  "sucker",
+  "sucking",
+  "suckme",
+  "suckmyass",
+  "suckmydick",
+  "suckmytit",
+  "suckoff",
+  "sucks",
+  "suicide girl",
+  "suicide girls",
+  "suicide",
+  "suicidegirl",
+  "suicidegirls",
+  "suka",
+  "sultry women",
+  "sultry",
+  "sultrywoman",
+  "sultrywomen",
+  "sumofabiatch",
+  "swallow",
+  "swallower",
+  "swalow",
+  "swamp guinea",
+  "swamp guineas",
+  "swastika",
+  "swinger",
+  "syphilis",
+  "t i t",
+  "t i ts",
+  "t1t",
+  "t1tt1e5",
+  "t1tties",
+  "taboo",
+  "tacohead",
+  "tacoheads",
+  "taff",
+  "tainted love",
+  "tainted",
+  "take off your",
+  "tantra",
+  "tar babies",
+  "tar baby",
+  "tarbaby",
+  "tard",
+  "taste my",
+  "tastemy",
+  "tawdry",
+  "tea bagging",
+  "teabagging",
+  "teat",
+  "teets",
+  "teez",
+  "terd",
+  "terror",
+  "terrorist",
+  "teste",
+  "testee",
+  "testes",
+  "testical",
+  "testicle",
+  "testicles",
+  "testis",
+  "thicklip",
+  "thicklips",
+  "thirdeye",
+  "thirdleg",
+  "threesome",
+  "threeway",
+  "throat",
+  "throating",
+  "thrust",
+  "thug",
+  "thundercunt",
+  "ti",
+  "tied up",
+  "tig ol bitties", 
+  "tig old bitties",
+  "tight white",
+  "timber nigger",
+  "timber niggers",
+  "timbernigger",
+  "tinkle",
+  "tit",
+  "titbitnipply",
+  "titfuck",
+  "titfucker",
+  "titfuckin",
+  "titi",
+  "titjob",
+  "titlicker",
+  "titlover",
+  "tits",
+  "titt",
+  "tittie",
+  "tittie5",
+  "tittiefucker",
+  "titties",
+  "tittis",
+  "titty",
+  "tittyfuck",
+  "tittyfucker",
+  "tittys",
+  "tittywank",
+  "titwank",
+  "tity",
+  "to murder",
+  "toke",
+  "tongethruster",
+  "tongue in a",
+  "tongueina",
+  "tonguethrust",
+  "tonguetramp",
+  "toots",
+  "topless",
+  "tortur",
+  "torture",
+  "tosser",
+  "towel head",
+  "towel heads",
+  "towelhead",
+  "trailertrash",
+  "tramp",
+  "trannie",
+  "tranny",
+  "transsexual",
+  "transvestite",
+  "trashy",
+  "tribadism",
+  "triplex",
+  "trisexual",
+  "trois",
+  "trojan",
+  "trombone",
+  "trots",
+  "tub girl",
+  "tubgirl",
+  "tuckahoe",
+  "tunneloflove",
+  "turd",
+  "turd burgler",
+  "turnon",
+  "tush",
+  "tushy",
+  "tw4t",
+  "twat",
+  "twathead",
+  "twatlips",
+  "twats",
+  "twatty",
+  "twatwaffle",
+  "twink",
+  "twinkie",
+  "two girls one cup",
+  "twobitwhore",
+  "twunt",
+  "twunter",
+  "udge packer",
+  "ukrop",
+  "uncle tom",
+  "unclefucker",
+  "undies",
+  "undressing",
+  "unfuckable",
+  "unwed",
+  "upskirt",
+  "uptheass",
+  "upthebutt",
+  "urethra play",
+  "urethra",
+  "urethraplay",
+  "urophilia",
+  "usama",
+  "ussys",
+  "uzi",
+  "v a g i n a",
+  "v14gra",
+  "v1gra",
+  "v4gra",
+  "va-j-j",
+  "va1jina",
+  "vag",
+  "vag1na",
+  "vagiina",
+  "vagina",
+  "vaginal",
+  "vaj1na",
+  "vajina",
+  "valium",
+  "venus mound",
+  "vgra",
+  "viagra",
+  "vibe",
+  "vibr",
+  "vibrater",
+  "vibrator",
+  "vietcong",
+  "violet wand",
+  "virgin",
+  "virginbreaker",
+  "vittu",
+  "vixen",
+  "vjayjay",
+  "vodka",
+  "vomit",
+  "vorarephilia",
+  "voyeur",
+  "vulgar",
+  "vullva",
+  "vulva",
+  "w00se",
+  "w0p",
+  "wab",
+  "wad",
+  "wang",
+  "wank",
+  "wanker",
+  "wanking",
+  "wanky",
+  "waysted",
+  "wazoo",
+  "wedgie",
+  "weed",
+  "weenie",
+  "weewee",
+  "weiner",
+  "weirdo",
+  "welcher",
+  "wench",
+  "wet dream",
+  "wetb",
+  "wetback",
+  "wetbacks",
+  "wetdream",
+  "wetspot",
+  "wh00r",
+  "wh0re",
+  "wh0reface",
+  "whacker",
+  "whash",
+  "whigger",
+  "whiggers",
+  "whiskeydick",
+  "whiskydick",
+  "whit",
+  "white power",
+  "white trash",
+  "whitenigger",
+  "whitepower",
+  "whites",
+  "whitetrash",
+  "whitey",
+  "whiteys",
+  "whities",
+  "whiz",
+  "whoar",
+  "whop",
+  "whoralicious",
+  "whore",
+  "whorealicious",
+  "whorebag",
+  "whored",
+  "whoreface",
+  "whorefucker",
+  "whorehopper",
+  "whorehouse",
+  "whores",
+  "whoring",
+  "wichser",
+  "wigga",
+  "wiggas",
+  "wigger",
+  "wiggers",
+  "willie",
+  "willies",
+  "williewanker",
+  "willy",
+  "wn",
+  "wog",
+  "wogs",
+  "woody",
+  "wop",
+  "wrapping men",
+  "wrinkled starfish",
+  "wtf",
+  "wuss",
+  "wuzzie",
+  "x-rated",
+  "xkwe",
+  "xrated",
+  "xtc",
+  "xx",
+  "xxx",
+  "xxxxxx",
+  "yank",
+  "yaoi",
+  "yarpie",
+  "yarpies",
+  "yeasty",
+  "yed",
+  "yellow showers",
+  "yellowman",
+  "yellowshowers",
+  "yid",
+  "yids",
+  "yiffy",
+  "yobbo",
+  "yourboobs",
+  "yourpenis",
+  "yourtits",
+  "zabourah",
+  "zigabo",
+  "zigabos",
+  "zipperhead",
+  "zipperheads",
+  "zoophile",
+  "zoophilia",
+  "🖕"
+]
 
-        },
-        createThumbnail: function(href) {
-            var thumb;					
-            thumb = document.createElement("img");
-			thumb.setAttribute("loading", "lazy");	
-            thumb.setAttribute("align", "left");	
-            thumb.setAttribute("src", href);
-            thumb.style.width = "32px";
-            thumb.style.height = "32px";
-			thumb.setAttribute("width", 32);
-			thumb.setAttribute("height", 32);
-            thumb.style.backgroundPosition = "center";
-            thumb.style.backgroundRepeat = "no-repeat";
-            thumb.style.border = "none";
-            thumb.style.position = "absolute";
-            thumb.style.left = "-64px";
-
-            return thumb;
-        },
-    };
-
-    /* may need to tune this timeout in the future
-    otherwise we get progressive removals instead of all them toghether */
-    setTimeout(() => {
-        Detoxer.init();
-    }, 250)
-
-})();
-
-},{"sentiment":8}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 module.exports={
     "😂": 1,
     "❤": 3,
@@ -1184,13 +3848,13 @@ module.exports={
     "╤": -5,
     "📔": 5
 }
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = {
-    labels: require('./labels.json'),
-    scoringStrategy: require('./scoring-strategy')
+  labels: require('./labels.json'),
+  scoringStrategy: require('./scoring-strategy')
 };
 
-},{"./labels.json":5,"./scoring-strategy":7}],5:[function(require,module,exports){
+},{"./labels.json":6,"./scoring-strategy":8}],6:[function(require,module,exports){
 module.exports={
   "abandon": -2,
   "abandoned": -2,
@@ -4576,7 +7240,7 @@ module.exports={
   "zealous": 2
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports={
     "cant": 1,
     "can't": 1,
@@ -4592,34 +7256,37 @@ module.exports={
     "isn't": 1
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var negators = require('./negators.json');
 
 module.exports = {
-    apply: function(tokens, cursor, tokenScore) {
-        if (cursor > 0) {
-            var prevtoken = tokens[cursor - 1];
-            if (negators[prevtoken]) {
-                tokenScore = -tokenScore;
-            }
-        }
-        return tokenScore;
+  apply: function (tokens, cursor, tokenScore) {
+    if (cursor > 0) {
+      var prevtoken = tokens[cursor - 1];
+
+      if (negators[prevtoken]) {
+        tokenScore = -tokenScore;
+      }
     }
+
+    return tokenScore;
+  }
 };
 
-},{"./negators.json":6}],8:[function(require,module,exports){
+},{"./negators.json":7}],9:[function(require,module,exports){
 (function (process){(function (){
 var tokenize = require('./tokenize');
-var languageProcessor = require('./language-processor');
 
+var languageProcessor = require('./language-processor');
 /**
  * Constructor
  * @param {Object} options - Instance options
  */
-var Sentiment = function (options) {
-    this.options = options;
-};
 
+
+var Sentiment = function (options) {
+  this.options = options;
+};
 /**
  * Registers the specified language
  *
@@ -4628,10 +7295,11 @@ var Sentiment = function (options) {
  * @param {Object} language
  *     - The language module to register
  */
-Sentiment.prototype.registerLanguage = function (languageCode, language) {
-    languageProcessor.addLanguage(languageCode, language);
-};
 
+
+Sentiment.prototype.registerLanguage = function (languageCode, language) {
+  languageProcessor.addLanguage(languageCode, language);
+};
 /**
  * Performs sentiment analysis on the provided input 'phrase'.
  *
@@ -4647,167 +7315,167 @@ Sentiment.prototype.registerLanguage = function (languageCode, language) {
  *     - Optional callback
  * @return {Object}
  */
+
+
 Sentiment.prototype.analyze = function (phrase, opts, callback) {
-    // Parse arguments
-    if (typeof phrase === 'undefined') phrase = '';
-    if (typeof opts === 'function') {
-        callback = opts;
-        opts = {};
-    }
-    opts = opts || {};
+  // Parse arguments
+  if (typeof phrase === 'undefined') phrase = '';
 
-    var languageCode = opts.language || 'en';
-    var labels = languageProcessor.getLabels(languageCode);
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
 
-    // Merge extra labels
-    if (typeof opts.extras === 'object') {
-        labels = Object.assign(labels, opts.extras);
-    }
+  opts = opts || {};
+  var languageCode = opts.language || 'en';
+  var labels = languageProcessor.getLabels(languageCode); // Merge extra labels
 
-    // Storage objects
-    var tokens      = tokenize(phrase),
-        score       = 0,
-        words       = [],
-        positive    = [],
-        negative    = [],
-        calculation = [];
+  if (typeof opts.extras === 'object') {
+    labels = Object.assign(labels, opts.extras);
+  } // Storage objects
 
-    // Iterate over tokens
-    var i = tokens.length;
-    while (i--) {
-        var obj = tokens[i];
-        if (!labels.hasOwnProperty(obj)) continue;
-        words.push(obj);
 
-        // Apply scoring strategy
-        var tokenScore = labels[obj];
-        // eslint-disable-next-line max-len
-        tokenScore = languageProcessor.applyScoringStrategy(languageCode, tokens, i, tokenScore);
-        if (tokenScore > 0) positive.push(obj);
-        if (tokenScore < 0) negative.push(obj);
-        score += tokenScore;
-        
-        var zipObj = {}; 
-        // Calculations breakdown
-        zipObj[obj] = tokenScore;
-        calculation.push(zipObj);
-    }
+  var tokens = tokenize(phrase),
+      score = 0,
+      words = [],
+      positive = [],
+      negative = [],
+      calculation = []; // Iterate over tokens
 
-    var result = {
-        score:          score,
-        comparative:    tokens.length > 0 ? score / tokens.length : 0,
-        calculation:    calculation,
-        tokens:         tokens,
-        words:          words,
-        positive:       positive,
-        negative:       negative
-    };
+  var i = tokens.length;
 
-    // Handle optional async interface
-    if (typeof callback === 'function') {
-        process.nextTick(function () {
-            callback(null, result);
-        });
-    } else {
-        return result;
-    }
+  while (i--) {
+    var obj = tokens[i];
+    if (!labels.hasOwnProperty(obj)) continue;
+    words.push(obj); // Apply scoring strategy
+
+    var tokenScore = labels[obj]; // eslint-disable-next-line max-len
+
+    tokenScore = languageProcessor.applyScoringStrategy(languageCode, tokens, i, tokenScore);
+    if (tokenScore > 0) positive.push(obj);
+    if (tokenScore < 0) negative.push(obj);
+    score += tokenScore;
+    var zipObj = {}; // Calculations breakdown
+
+    zipObj[obj] = tokenScore;
+    calculation.push(zipObj);
+  }
+
+  var result = {
+    score: score,
+    comparative: tokens.length > 0 ? score / tokens.length : 0,
+    calculation: calculation,
+    tokens: tokens,
+    words: words,
+    positive: positive,
+    negative: negative
+  }; // Handle optional async interface
+
+  if (typeof callback === 'function') {
+    process.nextTick(function () {
+      callback(null, result);
+    });
+  } else {
+    return result;
+  }
 };
 
 module.exports = Sentiment;
 
 }).call(this)}).call(this,require('_process'))
-},{"./language-processor":9,"./tokenize":10,"_process":1}],9:[function(require,module,exports){
-var emojis = require('../build/emoji.json');
+},{"./language-processor":10,"./tokenize":11,"_process":1}],10:[function(require,module,exports){
+var emojis = require('../build/emoji.json'); // English is loaded by default
 
-// English is loaded by default
-var enLanguage = require('../languages/en/index');
-// Add emojis
-Object.assign(enLanguage.labels, emojis);
 
-// Cache loaded languages
+var enLanguage = require('../languages/en/index'); // Add emojis
+
+
+Object.assign(enLanguage.labels, emojis); // Cache loaded languages
+
 var languages = {
-    en: enLanguage
+  en: enLanguage
 };
-
 module.exports = {
+  /**
+   * Registers the specified language
+   *
+   * @param {String} languageCode
+   *     - Two-digit code for the language to register
+   * @param {Object} language
+   *     - The language module to register
+   */
+  addLanguage: function (languageCode, language) {
+    if (!language.labels) {
+      throw new Error('language.labels must be defined!');
+    } // Add emojis
 
-    /**
-     * Registers the specified language
-     *
-     * @param {String} languageCode
-     *     - Two-digit code for the language to register
-     * @param {Object} language
-     *     - The language module to register
-     */
-    addLanguage: function (languageCode, language) {
-        if (!language.labels) {
-            throw new Error('language.labels must be defined!');
-        }
-        // Add emojis
-        Object.assign(language.labels, emojis);
-        languages[languageCode] = language;
-    },
 
-    /**
-     * Retrieves a language object from the cache,
-     * or tries to load it from the set of supported languages
-     *
-     * @param {String} languageCode - Two-digit code for the language to fetch
-     */
-    getLanguage: function(languageCode) {
-        if (!languageCode) {
-            // Default to english if no language was specified
-            return languages.en;
-        }
-        if (!languages[languageCode]) {
-            // Try to load specified language
-            try {
-                // eslint-disable-next-line max-len
-                var language = require('../languages/' + languageCode + '/index');
-                // Add language to in-memory cache
-                this.addLanguage(languageCode, language);
-            } catch (err) {
-                throw new Error('No language found: ' + languageCode);
-            }
-        }
-        return languages[languageCode];
-    },
+    Object.assign(language.labels, emojis);
+    languages[languageCode] = language;
+  },
 
-    /**
-     * Returns AFINN-165 weighted labels for the specified language
-     *
-     * @param {String} languageCode - Two-digit language code
-     * @return {Object}
-     */
-    getLabels: function(languageCode) {
-        var language = this.getLanguage(languageCode);
-        return language.labels;
-    },
+  /**
+   * Retrieves a language object from the cache,
+   * or tries to load it from the set of supported languages
+   *
+   * @param {String} languageCode - Two-digit code for the language to fetch
+   */
+  getLanguage: function (languageCode) {
+    if (!languageCode) {
+      // Default to english if no language was specified
+      return languages.en;
+    }
 
-    /**
-     * Applies a scoring strategy for the current token
-     *
-     * @param {String} languageCode - Two-digit language code
-     * @param {Array} tokens - Tokens of the phrase to analyze
-     * @param {int} cursor - Cursor of the current token being analyzed
-     * @param {int} tokenScore - The score of the current token being analyzed
-     */
-    applyScoringStrategy: function(languageCode, tokens, cursor, tokenScore) {
-        var language = this.getLanguage(languageCode);
-        // Fallback to default strategy if none was specified
+    if (!languages[languageCode]) {
+      // Try to load specified language
+      try {
         // eslint-disable-next-line max-len
-        var scoringStrategy = language.scoringStrategy || defaultScoringStrategy;
-        return scoringStrategy.apply(tokens, cursor, tokenScore);
-    }
-};
+        var language = require('../languages/' + languageCode + '/index'); // Add language to in-memory cache
 
+
+        this.addLanguage(languageCode, language);
+      } catch (err) {
+        throw new Error('No language found: ' + languageCode);
+      }
+    }
+
+    return languages[languageCode];
+  },
+
+  /**
+   * Returns AFINN-165 weighted labels for the specified language
+   *
+   * @param {String} languageCode - Two-digit language code
+   * @return {Object}
+   */
+  getLabels: function (languageCode) {
+    var language = this.getLanguage(languageCode);
+    return language.labels;
+  },
+
+  /**
+   * Applies a scoring strategy for the current token
+   *
+   * @param {String} languageCode - Two-digit language code
+   * @param {Array} tokens - Tokens of the phrase to analyze
+   * @param {int} cursor - Cursor of the current token being analyzed
+   * @param {int} tokenScore - The score of the current token being analyzed
+   */
+  applyScoringStrategy: function (languageCode, tokens, cursor, tokenScore) {
+    var language = this.getLanguage(languageCode); // Fallback to default strategy if none was specified
+    // eslint-disable-next-line max-len
+
+    var scoringStrategy = language.scoringStrategy || defaultScoringStrategy;
+    return scoringStrategy.apply(tokens, cursor, tokenScore);
+  }
+};
 var defaultScoringStrategy = {
-    apply: function(tokens, cursor, tokenScore) {
-        return tokenScore;
-    }
+  apply: function (tokens, cursor, tokenScore) {
+    return tokenScore;
+  }
 };
 
-},{"../build/emoji.json":3,"../languages/en/index":4}],10:[function(require,module,exports){
+},{"../build/emoji.json":4,"../languages/en/index":5}],11:[function(require,module,exports){
 /*eslint no-useless-escape: "off"*/
 
 /**
@@ -4815,14 +7483,330 @@ var defaultScoringStrategy = {
  * @param  {string} input Input string
  * @return {array}        Array of tokens
  */
-module.exports = function(input) {
-    return input
-        .toLowerCase()
-        .replace(/\n/g, ' ')
-        .replace(/[.,\/#!?$%\^&\*;:{}=_`\"~()]/g, ' ')
-        .replace(/\s\s+/g, ' ')
-        .trim()
-        .split(' ');
+module.exports = function (input) {
+  return input.toLowerCase().replace(/\n/g, ' ').replace(/[.,\/#!?$%\^&\*;:{}=_`\"~()]/g, ' ').replace(/\s\s+/g, ' ').trim().split(' ');
 };
 
-},{}]},{},[2]);
+},{}],12:[function(require,module,exports){
+const words = require('profane-words');
+
+function convertLeet(char) {
+  let convertedChar = leet[char];
+
+  if (convertedChar) {
+    return convertedChar;
+  }
+
+  return char;
+}
+
+function removeDuplicateCharacters(string) {
+  return string.split('').filter(function (item, pos, self) {
+    return self.indexOf(item) == pos;
+  }).join('');
+}
+
+function leetspeak(input) {
+  let stringInput = input.toString();
+  let map = Array.prototype.map;
+  return map.call(stringInput, convertLeet).join('');
+}
+
+function checkProf(checkstring) {
+  checkstring.toLowerCase().split(" ").forEach(checkWord => {
+    if (words.includes(checkWord) || words.includes(leetspeak(checkWord))) {
+      console.warn('sweeped');
+    }
+  });
+  removeDuplicateCharacters(checkstring.toLowerCase()).split(" ").forEach(checkWord => {
+    if (words.includes(checkWord) || words.includes(leetspeak(checkWord))) {
+      console.warn('sweeped');
+    }
+  });
+}
+
+function checkall(checkstring) {
+  checkProf(checkstring);
+}
+
+const leet = {
+  "$": "s",
+  "0": "o",
+  "1": "l",
+  "3": "e",
+  "4": "a",
+  "7": "t",
+  "8": "b",
+  "KW": "Q",
+  "kw": "q",
+  "PH": "F",
+  "ph": "f"
+};
+const sensitivePattern = '(anal |sex |gay | lust|xxx|porn|fuck|incest|escort|nude|bitch|horny|milf|lesbian|boob|busty|cum|cunt|dick|fetish|hooter|naked|nude|oral|orgy|pussy|topless|seks|ensest|bokep|liseli)';
+const sensitiveRegex = new RegExp(sensitivePattern, 'i');
+
+let isTextSensitive = function (text) {
+  if (sensitiveRegex.test(text)) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+function getText(domElement) {
+  var clean = ["Featured snippet from the web ", "Web results ", "...", "People also search for"];
+  var root = domElement;
+  var text = [];
+
+  function traverseTree(root) {
+    Array.prototype.forEach.call(root.childNodes, function (child) {
+      if (child.nodeType === 3) {
+        var str = child.nodeValue.trim();
+
+        if (str.length > 0) {
+          text.push(str);
+        }
+      } else {
+        traverseTree(child);
+      }
+    });
+  }
+
+  traverseTree(root);
+  var result = text.join(' ');
+  clean.forEach(el => result = result.replaceAll(el, ' '));
+  return result;
+}
+
+(function () {
+  var Sentiment = require('sentiment');
+
+  var sentiment = new Sentiment();
+  var Detoxer = {
+    currentUrl: {},
+    ignoreList: [],
+    constants: {
+      queries: {
+        result_links: '.g div > a[href*="http"]',
+        link_parent_node: '#rso div.g',
+        main_google_node: 'main'
+      },
+      events: {
+        get_info: 'get_tId_and_wId',
+        inactive: 'inactive',
+        active: 'active'
+      },
+      console: {
+        needs_to_be_updated: 'Selectors may need to be updated!',
+        removed: 'Links were analysed from this search.'
+      },
+      observerConfig: {
+        childList: true,
+        subtree: true
+      }
+    },
+    init: function () {
+      var mainGoogleNode = document.getElementById(this.constants.queries.main_google_node);
+      /* avoiding google new tab page and other variations */
+
+      if (!mainGoogleNode) {
+        return chrome.runtime.sendMessage({
+          event: this.constants.events.inactive,
+          url: window.location.href
+        });
+      }
+
+      chrome.runtime.sendMessage({
+        event: this.constants.events.get_info
+      }, info => {
+        var tId = info.tId;
+        var wId = info.wId;
+        this.currentUrl[wId] = this.currentUrl[wId] ? this.currentUrl[wId] : {};
+        this.currentUrl[wId][tId] = window.location.href;
+        this.remove(info);
+        this.createResultsObserver(mainGoogleNode);
+      });
+    },
+    getAllLinks: function () {
+      return document.querySelectorAll(this.constants.queries.result_links);
+    },
+    remove: function (info) {
+      var tId = info.tId;
+      var wId = info.wId; // ignoring dropdown items and huge card on the right
+
+      var links = Array.from(this.getAllLinks()).filter(function (link) {
+        var isAccordionItem = Boolean(link.closest('g-accordion-expander'));
+        var isHugeCardOnTheRight = Boolean(link.closest('#wp-tabs-container'));
+        var isFeatured = Boolean(link.closest(".xpdopen")); // .ULSxyf
+
+        return !isAccordionItem && !isHugeCardOnTheRight && !isFeatured;
+      });
+      var count = links.length;
+
+      if (!count) {
+        if (!this.isSameUrl(window.location.href, info)) {
+          chrome.runtime.sendMessage({
+            event: this.constants.events.inactive
+          });
+          this.currentUrl[wId][tId] = window.location.href;
+        }
+
+        return;
+      }
+
+      this.currentUrl[wId][tId] = window.location.href;
+      chrome.runtime.sendMessage({
+        event: this.constants.events.active,
+        count: count
+      });
+      console.info(count + ' ' + this.constants.console.removed);
+      links.forEach(this.deleteOldGrandpaNode.bind(this));
+    },
+    createResultsObserver: function (mainGoogleNode) {
+      this.resultsObserver = new MutationObserver(() => {
+        chrome.runtime.sendMessage({
+          event: this.constants.events.get_info
+        }, info => {
+          var tId = info.tId;
+          var wId = info.wId;
+          this.currentUrl[wId] = this.currentUrl[wId] ? this.currentUrl[wId] : {};
+          this.remove(info);
+        });
+      }); //this.resultsObserver.observe(mainGoogleNode, this.constants.observerConfig);
+    },
+    isSameUrl: function (currentUrl, info) {
+      var tId = info.tId;
+      var wId = info.wId;
+      return this.currentUrl[wId][tId] === currentUrl;
+    },
+    addClientRectsOverlay: function (elt, sentimenti) {
+      /* Absolutely position a div over each client rect so that its border width
+         is the same as the rectangle's width.
+         Note: the overlays will be out of place if the user resizes or zooms. */
+      var that = this;
+      var rects = elt.getClientRects();
+
+      for (var i = 0; i != rects.length; i++) {
+        let original = elt;
+        var rect = rects[i];
+        var tableRectDiv = document.createElement('div'); //   tableRectDiv.style.position = 'absolute';
+
+        tableRectDiv.style.border = 'none';
+        tableRectDiv.style.backgroundColor = '#f8f9fa';
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+        tableRectDiv.style.margin = '0px';
+        tableRectDiv.style.padding = '5px 25px';
+        tableRectDiv.style.top = rect.top + scrollTop + 'px';
+        tableRectDiv.style.left = rect.left + scrollLeft + 'px'; // We want rect.width to be the border width, so content width is 2px less.
+
+        tableRectDiv.style.width = rect.width - 2 + 'px';
+        tableRectDiv.style.height = rect.height - 2 + 'px';
+        tableRectDiv.innerHTML = sentimenti.outerHTML;
+
+        tableRectDiv.onclick = function () {
+          that.ignoreList.push(original.id);
+          this.replaceWith(original); // "run_at": "document_idle"
+          // this.remove();
+        }; //   document.body.appendChild(tableRectDiv);
+
+
+        return tableRectDiv;
+      }
+    },
+    getData: async function (text, overlay, score) {
+      const URL = 'https://services.iittp.ac.in/detoxbrowser/'; // const URL = 'http://localhost:3000/';
+
+      var b = text.replace(/(?:https?|ftp?|www.):\/\/[\n\S]+/g, '');
+      const data = JSON.stringify({
+        "text": `${b}`
+      });
+      $.ajax({
+        url: URL,
+        type: "POST",
+        data: data,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+          const text = document.createElement('p');
+          text.innerHTML = `🤖[${score}] ${data.categoriser} \n`;
+          const text2 = document.createElement('p');
+          text2.className = "spoiler";
+          text2.innerHTML = data.keywords.join(", ");
+          overlay.appendChild(text);
+          overlay.appendChild(text2);
+        }
+      });
+    },
+    deleteOldGrandpaNode: async function (el) {
+      var parent = el.closest(this.constants.queries.link_parent_node);
+      if (!parent) return console.log(this.constants.console.needs_to_be_updated); // console.log(parent.getBoundingClientRect());
+      // this.addClientRectsOverlay(parent);
+      // const original = parent;
+
+      if (this.ignoreList.includes(parent.id)) return; // "js": [ "scripts/jquery-3.6.0.min.js", "scripts/remover.js" ],
+      // console.log(jQuery(parent).text());
+
+      let check_text = getText(parent);
+      let score = Number(sentiment.analyze(check_text).comparative.toFixed(1));
+      let img = '';
+
+      switch (true) {
+        case score < -0.5:
+          img = chrome.runtime.getURL('images/emote/np.png');
+          break;
+
+        case score >= -0.5 && score < 0:
+          img = chrome.runtime.getURL('images/emote/n0.5.png');
+          break;
+
+        case score <= 0.5 && score > 0:
+          img = chrome.runtime.getURL('images/emote/p0.5.png');
+          break;
+
+        case score > 0.5:
+          img = chrome.runtime.getURL('images/emote/pp.png');
+          break;
+
+        default:
+          img = chrome.runtime.getURL('images/emote/0.png');
+      }
+
+      let sentimenti = this.createThumbnail(img);
+      var overlay;
+
+      if (score < 0) {
+        overlay = this.addClientRectsOverlay(parent, sentimenti);
+        this.getData(check_text, overlay, score);
+        parent.replaceWith(overlay);
+      }
+
+      parent.insertBefore(sentimenti, parent.firstChild); // parent.style.display = 'none';
+    },
+    createThumbnail: function (href) {
+      var thumb;
+      thumb = document.createElement("img");
+      thumb.setAttribute("loading", "lazy");
+      thumb.setAttribute("align", "left");
+      thumb.setAttribute("src", href);
+      thumb.style.width = "32px";
+      thumb.style.height = "32px";
+      thumb.setAttribute("width", 32);
+      thumb.setAttribute("height", 32);
+      thumb.style.backgroundPosition = "center";
+      thumb.style.backgroundRepeat = "no-repeat";
+      thumb.style.border = "none";
+      thumb.style.position = "absolute";
+      thumb.style.left = "-64px";
+      return thumb;
+    }
+  };
+  /* may need to tune this timeout in the future
+  otherwise we get progressive removals instead of all them toghether */
+
+  setTimeout(() => {
+    Detoxer.init();
+  }, 250);
+})();
+
+},{"profane-words":2,"sentiment":9}]},{},[12]);

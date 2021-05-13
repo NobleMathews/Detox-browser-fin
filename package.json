@@ -1,0 +1,25 @@
+{
+  "name": "final_build",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify scripts/remover.js -o scripts/bundle.js -t [ babelify --global ] && (echo 'built!')"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NobleMathews/Detox-browser-fin.git"
+  },
+  "keywords": [],
+  "author": "Noble Saji Mathews",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NobleMathews/Detox-browser-fin/issues"
+  },
+  "dependencies": {
+    "profane-words": "^1.4.0",
+    "sentiment": "^5.0.2"
+  },
+  "homepage": "https://github.com/NobleMathews/Detox-browser-fin#readme"
+}

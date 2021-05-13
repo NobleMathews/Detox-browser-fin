@@ -1,3 +1,66 @@
+const words = require('profane-words');
+function convertLeet (char) {
+    let convertedChar = leet[char]
+    if (convertedChar) {
+      return convertedChar
+    }
+  
+    return char
+}
+function removeDuplicateCharacters(string) {
+    return string
+      .split('')
+      .filter(function(item, pos, self) {
+        return self.indexOf(item) == pos;
+      })
+      .join('');
+}
+function leetspeak (input) {
+let stringInput = input.toString()
+let map = Array.prototype.map
+
+return map.call(stringInput, convertLeet).join('')
+}
+
+function checkProf(checkstring){
+    checkstring.toLowerCase().split(" ").forEach(checkWord=>{
+    if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
+        console.warn('sweeped')
+    }
+    })
+    removeDuplicateCharacters(checkstring.toLowerCase()).split(" ").forEach(checkWord=>{
+        if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
+            console.warn('sweeped')
+    ;}})
+
+}
+
+function checkall(checkstring){
+    checkProf(checkstring);
+}
+const leet = {
+    "$": "s",
+    "0": "o",
+    "1": "l",
+    "3": "e",
+    "4": "a",
+    "7": "t",
+    "8": "b",
+    "KW": "Q",
+    "kw": "q",
+    "PH": "F",
+    "ph": "f"
+  }
+const sensitivePattern = '(anal |sex |gay | lust|xxx|porn|fuck|incest|escort|nude|bitch|horny|milf|lesbian|boob|busty|cum|cunt|dick|fetish|hooter|naked|nude|oral|orgy|pussy|topless|seks|ensest|bokep|liseli)';
+const sensitiveRegex = new RegExp(sensitivePattern, 'i');
+let isTextSensitive = function (text) {
+    if (sensitiveRegex.test(text)) {
+      return true;
+    } else {
+      return false;
+    }
+}
+
 function getText(domElement) {
     var clean = ["Featured snippet from the web ","Web results ","...","People also search for"]
     var root = domElement;
@@ -138,7 +201,7 @@ function getText(domElement) {
             }
         },
         getData: async function(text,overlay,score) {
-            const URL = 'https://text-check.herokuapp.com/';
+            const URL = 'https://services.iittp.ac.in/detoxbrowser/';
             // const URL = 'http://localhost:3000/';
             var b = text.replace(/(?:https?|ftp?|www.):\/\/[\n\S]+/g, '');
             const data = JSON.stringify({"text":`${b}`})
