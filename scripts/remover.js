@@ -1,4 +1,6 @@
 const words = require('profane-words');
+const { parse } = require('tldts');
+
 function convertLeet (char) {
     let convertedChar = leet[char]
     if (convertedChar) {
@@ -187,8 +189,9 @@ function getText(domElement) {
               tableRectDiv.style.left = (rect.left + scrollLeft) + 'px';
               // We want rect.width to be the border width, so content width is 2px less.
               tableRectDiv.style.width = (rect.width - 2) + 'px';
-              tableRectDiv.style.height = (rect.height - 2) + 'px';
+              tableRectDiv.style.minHeight = (rect.height - 2) + 'px';
               tableRectDiv.innerHTML=sentimenti.outerHTML;
+              tableRectDiv.style.marginBlockEnd = "10px";
               tableRectDiv.onclick = function(){
                 that.ignoreList.push(original.id);
                 this.replaceWith(original);
@@ -204,6 +207,11 @@ function getText(domElement) {
             const URL = 'https://services.iittp.ac.in/detoxbrowser/';
             // const URL = 'http://localhost:3000/';
             var b = text.replace(/(?:https?|ftp?|www.):\/\/[\n\S]+/g, '');
+            const textf = document.createElement('p');
+            const textc = parse(text.match(/(?:https?|ftp?|www.):\/\/[\n\S]+/)[0]);
+
+            textf.innerHTML= textc.domain; 
+            overlay.appendChild(textf);
             const data = JSON.stringify({"text":`${b}`})
             $.ajax({
                 url:URL,
