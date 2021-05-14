@@ -20,7 +20,8 @@
   "dependencies": {
     "profane-words": "^1.4.0",
     "sentiment": "^5.0.2",
-    "tldts": "^5.7.35"
+    "tldts": "^5.7.35",
+    "watchify": "^4.0.0"
   },
   "homepage": "https://github.com/NobleMathews/Detox-browser-fin#readme"
 }

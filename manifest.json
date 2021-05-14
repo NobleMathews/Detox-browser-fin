@@ -10,7 +10,7 @@
        "32":"images/a32.png",
        "48": "images/a48.png"
     },    "background": {
-        "scripts": [ "scripts/bg.js" ], 
+        "scripts": [ "scripts/bg.js", "scripts/hot-reload.js" ], 
         "persistent": false
     },
     "browser_action": {

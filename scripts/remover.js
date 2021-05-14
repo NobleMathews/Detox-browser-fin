@@ -73,7 +73,11 @@ function getText(domElement) {
         if (child.nodeType === 3) {
           var str = child.nodeValue.trim();
           if (str.length > 0) {
-            text.push(str);
+            if (str[0]=='>' || str.substring(0, 6) == "(funct") {
+            }
+            else{
+                text.push(str);
+            }
           }
         } else {
           traverseTree(child);
@@ -213,6 +217,17 @@ function getText(domElement) {
             textf.innerHTML= textc.domain; 
             overlay.appendChild(textf);
             const data = JSON.stringify({"text":`${b}`})
+            const keyb = [/JavaScript/i,
+            /Python/i,
+            /Java/i,
+            /Rust/,
+            /PHP/i,
+            /C#/i,
+            /C\+\+/i,
+            /TypeScript/i,
+            /Ruby/i,
+            /Shell/i,
+            / C /]
             $.ajax({
                 url:URL,
                 type:"POST",
@@ -220,11 +235,17 @@ function getText(domElement) {
                 contentType:"application/json; charset=utf-8",
                 dataType:"json",
                 success: function(data){
+                const joint = data.keywords.join(", ");
+                for(const prop in keyb){
+                if(joint.match(keyb[prop])){
+                    return;
+                }
+                }
                   const text = document.createElement('p');
                   text.innerHTML=`🤖[${score}] ${data.categoriser} \n`;
                   const text2 = document.createElement('p')
                   text2.className = "spoiler";
-                  text2.innerHTML= data.keywords.join(", ");
+                  text2.innerHTML= joint;
                   overlay.appendChild(text);
                   overlay.appendChild(text2);
                 }
@@ -241,6 +262,10 @@ function getText(domElement) {
             // "js": [ "scripts/jquery-3.6.0.min.js", "scripts/remover.js" ],
             // console.log(jQuery(parent).text());
             let check_text = getText(parent);
+            const re = /(definition|dictionary|wiki)/i
+            if(((check_text || '').match(re) || []).length>0){
+                return;
+            }
             let score = Number((sentiment.analyze(check_text).comparative).toFixed(1));
             let img = '';
             switch(true){
