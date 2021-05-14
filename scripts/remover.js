@@ -101,8 +101,10 @@ function getText(domElement) {
             queries: {
                 result_links: '.g div > a[href*="http"]', 
                 story_links: 'g-inner-card div > a[href*="http"]', 
+                video_links: '.QmUzgb div > a[href*="http"]',
                 link_parent_node: '#rso div.g',
-                link_story_node: '#rso g-inner-card', 
+                link_story_node: '#rso g-inner-card',
+                link_video_node: '#rso .QmUzgb', 
                 main_google_node: 'main'
             }, 
             events: {
@@ -134,7 +136,8 @@ function getText(domElement) {
         getAllLinks: function() {
             normy_links = document.querySelectorAll(this.constants.queries.result_links);
             story_links = document.querySelectorAll(this.constants.queries.story_links);
-            return  Array.prototype.concat.call(...normy_links , ...story_links );
+            video_links = document.querySelectorAll(this.constants.queries.video_links);
+            return  Array.prototype.concat.call(...normy_links , ...story_links, ...video_links);
         }, 
         remove: function(info) {
             var tId = info.tId;
@@ -242,7 +245,7 @@ function getText(domElement) {
                     textf.innerHTML= textc.domain; 
                 }
             }
-            else if(type==1){
+            else if(type==1||type==2){
                 textf.innerHTML = `${parse(href).domain} \n`;
             }
 
@@ -285,6 +288,7 @@ function getText(domElement) {
         deleteOldGrandpaNode: async function(el) {
             var parent = el.closest(this.constants.queries.link_parent_node);
             if(!parent) parent = el.closest(this.constants.queries.link_story_node);
+            if(!parent) parent = el.closest(this.constants.queries.link_video_node);
             if(!parent) return console.log(this.constants.console.needs_to_be_updated);
             // console.log(parent.getBoundingClientRect());
             // this.addClientRectsOverlay(parent);
@@ -327,6 +331,9 @@ function getText(domElement) {
                 }
                 else if(parent.tagName=='G-INNER-CARD'){
                     this.getData(check_text,overlay,score, 1, href_text)
+                }
+                else{
+                    this.getData(check_text,overlay,score, 1, href_text) 
                 }
                 parent.replaceWith(overlay)
             }
