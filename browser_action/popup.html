@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,400|Source+Sans+Pro:200" rel="stylesheet">
+    <style type="text/css">
+    body {
+        width: 400px;
+        max-height: 800px;
+    }
+    
+    #mainPopup {
+        height: 120px;
+        width: 100%;
+        padding: 1px;
+    }
+    
+    #mainPopup,
+    #help,
+    #onoff,
+    #testingMode,
+    #openBlacklist,
+    #examples {
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    #blacklist, #polarlist {
+        width: 99%;
+        height: 100%;
+        background: white;
+        color: black;
+        font-size: 13px;
+        line-height: 1.5em;
+        resize: none;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border-left: none;
+        border-right: none;
+        border-color: black;
+        overflow: auto;
+        display: none;
+        white-space: pre;
+    }
+    
+    #save-btn, #save-btnp {
+        background: lightgreen;
+        color: black;
+        margin-bottom: 10px;
+        width: 100%;
+        border-style: solid;
+        border-color: black;
+        border-width: 1px;
+        padding: 5px;
+        display: none;
+    }
+    
+    #onoff,
+    #testingMode {
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    #testingMode {
+        float: right;
+    }
+    
+    #onoff,
+    #testingMode,
+    #help {
+        display: none;
+    }
+    
+    #openBlacklist,
+    .subLogo {
+        display: inline;
+    }
+    
+    #openBlacklist {
+        float: right;
+        margin-bottom: 0;
+    }
+    
+    #help,
+    #openBlacklist {
+        font-size: 13px;
+        cursor: pointer;
+        margin-bottom: 5px;
+        text-align: center;
+        text-decoration: none;
+    }
+    
+    #help,
+    #openBlacklist {
+        color: gray;
+    }
+    
+    #help:hover,
+    #openBlacklist:hover {
+        color: black;
+    }
+    
+    #examples {
+        margin-top: 10px;
+        display: none;
+        font-size: 13px;
+    }
+    
+    #logo,
+    #logoLine,
+    .wordLine {
+        display: none;
+        font-family: 'Source Sans Pro', sans-serif;
+    }
+    
+    .wordLine {
+        margin: 0;
+    }
+    
+    #optionsIcon {
+        width: 16px;
+        height: 16px;
+        margin-bottom: -10px;
+        float: right;
+    }
+    
+    #optionsIcon:hover {
+        border-bottom: solid;
+        border-width: 1px;
+        border-color: black;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="mainPopup">
+        <img id='optionsIcon' src='options.png'>
+        <center>
+            <h1 id='logo'>DetoxBrowser</h1>
+            <hr id='logoLine' style='width:180px;'>
+        </center>
+        <br>
+        <div class='wordLine'>
+            <h2 class='subLogo'>Personalised Word Polarity:</h2>
+            <a href="http://www2.imm.dtu.dk/pubdb/pubs/6010-full.html" rel="noreferrer noopener" target="_blank" id='openBlacklist'>&#8599; Open base list</a>
+        </div>
+        <br>
+        <textarea id='polarlist' placeholder="polarity from -5 to +5 followed by keyword
+Eg. -5:Assault no spaces 
+use ':' to separate one on each line">
+        </textarea>
+        <br>
+        <br>
+        <button id='save-btnp'>Save changes</button>
+        <br>
+        <div class='wordLine'>
+            <h2 class='subLogo'>Blacklist:</h2>
+            <!-- <label id='testingMode' title='Turn extension off temporarily'>
+                <input type='checkbox' id='toggle'><label id='onoff'>Turn Off</label> -->
+        </div>
+        <br>
+        <textarea id='blacklist' placeholder="Separate 
+blacklist
+with a new line">
+        </textarea>
+        <br>
+        <br>
+        <button id='save-btn'>Save changes</button>
+        <p id='help'>About</p>
+        <p id='examples'>
+            <br>
+            <strong>Keyword</strong> = case-sensitive, can be anywhere in the text
+            <br>
+            <strong>*Keyword</strong> = case-sensitive, has to be exactly the same on the webpage
+            <br>
+            <strong>Keyword^</strong> = case-insensitive, can be anywhere in the text
+            <br>
+            <strong>*Keyword^</strong> = matches Keyword OR keyword
+            <br>
+            <strong>{css selector}</strong> = hides elements that apply to the css selector. For example {.class} {#id-element}
+            <br> // Two slashes starts a comment line
+            <br>
+            <br>
+            <strong><i>Use Testing mode to easily observe the effects on the webpage. Hover on highlighted element to see which keyword was found on it.</i></strong>
+        </p>
+    </div>
+    <script type="text/javascript" src='popup.js'></script>
+</body>
+
+</html>

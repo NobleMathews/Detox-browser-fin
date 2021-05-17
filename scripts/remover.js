@@ -1,67 +1,103 @@
-const words = require('profane-words');
+// const words = require('profane-words');
 const { parse } = require('tldts');
 
-function convertLeet (char) {
-    let convertedChar = leet[char]
-    if (convertedChar) {
-      return convertedChar
-    }
-  
-    return char
-}
-function removeDuplicateCharacters(string) {
-    return string
-      .split('')
-      .filter(function(item, pos, self) {
-        return self.indexOf(item) == pos;
-      })
-      .join('');
-}
-function leetspeak (input) {
-let stringInput = input.toString()
-let map = Array.prototype.map
+const optionsT = {
+    extras:{}
+};
 
-return map.call(stringInput, convertLeet).join('')
-}
+var options={
+    extras:{
 
-function checkProf(checkstring){
-    checkstring.toLowerCase().split(" ").forEach(checkWord=>{
-    if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
-        console.warn('sweeped')
     }
+}
+var blacklist;
+function updateOptions() {
+    var wordlist, blacklisti;
+    return new Promise((resolve, reject)=>{
+        chrome.storage.sync.get(['polarlist', 'blacklist'], function(result) {
+            if(result.polarlist && result.blacklist){
+                let extrasD={};
+                wordlist = result.polarlist.split('\n').filter(Boolean);
+                blacklisti = result.blacklist.split('\n').filter(Boolean);
+                wordlist.map(function(v){
+                    let elementary = v.split(":");
+                    extrasD = Object.assign({ [elementary[1].replace(/\s/g, '+')]:parseInt(elementary[0])}, extrasD);
+                });
+                const upd = Object.create(optionsT);
+                upd.extras = extrasD;
+                options = upd;
+                blacklist = blacklisti;
+                resolve(upd);
+            }
+            else{
+                reject(options);
+            }
+            
+        });
     })
-    removeDuplicateCharacters(checkstring.toLowerCase()).split(" ").forEach(checkWord=>{
-        if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
-            console.warn('sweeped')
-    ;}})
-
 }
 
-function checkall(checkstring){
-    checkProf(checkstring);
-}
-const leet = {
-    "$": "s",
-    "0": "o",
-    "1": "l",
-    "3": "e",
-    "4": "a",
-    "7": "t",
-    "8": "b",
-    "KW": "Q",
-    "kw": "q",
-    "PH": "F",
-    "ph": "f"
-  }
-const sensitivePattern = '(anal |sex |gay | lust|xxx|porn|fuck|incest|escort|nude|bitch|horny|milf|lesbian|boob|busty|cum|cunt|dick|fetish|hooter|naked|nude|oral|orgy|pussy|topless|seks|ensest|bokep|liseli)';
-const sensitiveRegex = new RegExp(sensitivePattern, 'i');
-let isTextSensitive = function (text) {
-    if (sensitiveRegex.test(text)) {
-      return true;
-    } else {
-      return false;
-    }
-}
+// function convertLeet (char) {
+//     let convertedChar = leet[char]
+//     if (convertedChar) {
+//       return convertedChar
+//     }
+  
+//     return char
+// }
+// function removeDuplicateCharacters(string) {
+//     return string
+//       .split('')
+//       .filter(function(item, pos, self) {
+//         return self.indexOf(item) == pos;
+//       })
+//       .join('');
+// }
+// function leetspeak (input) {
+// let stringInput = input.toString()
+// let map = Array.prototype.map
+
+// return map.call(stringInput, convertLeet).join('')
+// }
+
+// function checkProf(checkstring){
+//     checkstring.toLowerCase().split(" ").forEach(checkWord=>{
+//     if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
+//         console.warn('sweeped')
+//     }
+//     })
+//     removeDuplicateCharacters(checkstring.toLowerCase()).split(" ").forEach(checkWord=>{
+//         if (words.includes(checkWord) || words.includes(leetspeak(checkWord))){
+//             console.warn('sweeped')
+//     ;}})
+
+// }
+
+// function checkall(checkstring){
+//     checkProf(checkstring);
+// }
+// const leet = {
+//     "$": "s",
+//     "0": "o",
+//     "1": "l",
+//     "3": "e",
+//     "4": "a",
+//     "7": "t",
+//     "8": "b",
+//     "KW": "Q",
+//     "kw": "q",
+//     "PH": "F",
+//     "ph": "f"
+//   }
+// const sensitivePattern = '(word|last)';
+// const sensitiveRegex = new RegExp(sensitivePattern, 'i');
+// let isTextSensitive = function (text) {
+//     if (sensitiveRegex.test(text)) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+// }
 
 function getText(domElement) {
     var clean = ["Featured snippet from the web ","Web results ","...","People also search for"]
@@ -100,9 +136,11 @@ function getText(domElement) {
         constants: {
             queries: {
                 result_links: '.g div > a[href*="http"]', 
-                story_links: 'g-inner-card div > a[href*="http"]', 
+                story_links: 'g-inner-card div > a[href*="http"]',
+                news_links: 'g-card > div > a[href*="http"], g-card > div > div > a[href*="http"], g-card > div > div > div > a[href*="http"], g-card > div > div > div > div > a[href*="http"]', 
                 video_links: '.QmUzgb div > a[href*="http"]',
                 link_parent_node: '#rso div.g',
+                link_news_node: '#rso g-card',
                 link_story_node: '#rso g-inner-card',
                 link_video_node: '#rso .QmUzgb', 
                 main_google_node: 'main'
@@ -136,8 +174,9 @@ function getText(domElement) {
         getAllLinks: function() {
             normy_links = document.querySelectorAll(this.constants.queries.result_links);
             story_links = document.querySelectorAll(this.constants.queries.story_links);
+            news_links = document.querySelectorAll(this.constants.queries.news_links);
             video_links = document.querySelectorAll(this.constants.queries.video_links);
-            return  Array.prototype.concat.call(...normy_links , ...story_links, ...video_links);
+            return  Array.prototype.concat.call(...normy_links , ...story_links, ...news_links, ...video_links);
         }, 
         remove: function(info) {
             var tId = info.tId;
@@ -207,6 +246,10 @@ function getText(domElement) {
                 tableRectDiv.style.padding = '0px 25px';
                 tableRectDiv.style.marginBlockEnd = "0px";
               }
+              else if(elt.firstChild.childNodes[0].tagName=="A"){
+                tableRectDiv.style.padding = '0px 25px';
+                tableRectDiv.style.marginBlockEnd = "0px";
+              }
 
 
               tableRectDiv.style.top = (rect.top + scrollTop) + 'px';
@@ -219,7 +262,9 @@ function getText(domElement) {
               if(this.tagName=='G-INNER-CARD'){
                 tableRectDiv.innerHTML=sentimenti2.outerHTML;
             }
-
+            else if(elt.firstChild.childNodes[0].tagName=="A"){
+                tableRectDiv.innerHTML=sentimenti2.outerHTML;
+              }
               tableRectDiv.onclick = function(){
                 that.ignoreList.push(original.id);
                 this.replaceWith(original);
@@ -271,6 +316,7 @@ function getText(domElement) {
                 const joint = data.keywords.join(", ");
                 for(const prop in keyb){
                 if(joint.match(keyb[prop])){
+                    overlay.click();
                     return;
                 }
                 }
@@ -289,6 +335,7 @@ function getText(domElement) {
             var parent = el.closest(this.constants.queries.link_parent_node);
             if(!parent) parent = el.closest(this.constants.queries.link_story_node);
             if(!parent) parent = el.closest(this.constants.queries.link_video_node);
+            if(!parent) parent = el.closest(this.constants.queries.link_news_node);
             if(!parent) return console.log(this.constants.console.needs_to_be_updated);
             // console.log(parent.getBoundingClientRect());
             // this.addClientRectsOverlay(parent);
@@ -303,7 +350,13 @@ function getText(domElement) {
             if(((check_text || '').match(re) || []).length>0){
                 return;
             }
-            let score = Number((sentiment.analyze(check_text).comparative).toFixed(1));
+            options = await updateOptions();
+            if (new RegExp(blacklist.join("|")).test(check_text)) {
+                // At least one match
+                parent.style.display = 'none';
+                return;
+            }
+            let score = Number((sentiment.analyze(check_text,options).comparative).toFixed(1));
             let img = '';
             switch(true){
                 case score < -0.5:
@@ -326,6 +379,10 @@ function getText(domElement) {
             var overlay;
             if(score<0){
                 overlay = this.addClientRectsOverlay(parent,sentimenti,sentimenti2);
+                if(!overlay){
+                    console.log(parent);
+                    return;
+                }
                 if(parent.tagName=='DIV'){
                     this.getData(check_text,overlay,score, 0);
                 }
@@ -340,7 +397,10 @@ function getText(domElement) {
             if(parent.tagName=='DIV'){
                 parent.insertBefore(sentimenti,parent.firstChild);
             }
-            if(parent.tagName=='G-INNER-CARD'){
+            else if(parent.tagName=='G-INNER-CARD'){
+                parent.insertBefore(sentimenti2,parent.firstChild);
+            }
+            else if(elt.firstChild.childNodes[0].tagName=="A"){
                 parent.insertBefore(sentimenti2,parent.firstChild);
             }
 
