@@ -44,8 +44,13 @@
         ],
         "js": [
             "browser_action/jquery-3.6.0.min.js",
+            "browser_action/jquery.modal.min.js",
             "scripts/inject.js"
-        ]
+        ],
+        "css":[
+            "browser_action/jquery.modal.min.css"
+        ],
+        "run_at": "document_idle"
     }
     ],
     "web_accessible_resources": [

@@ -41,6 +41,7 @@ function hideElem(elem, word) {
 
 }
 function checkAllElems(wordlist, elem) {
+    var superSet = new Set();
     var maxChildren = cDefault;
     var elemType;
     if (elem != elemTags) {
@@ -59,37 +60,58 @@ function checkAllElems(wordlist, elem) {
                     if (new RegExp(word, 'gi')
                         .test($(this).text()) && $(this).css('display') != 'none') {
                         hideElem($(this), word);
+                        superSet.add(word);
                     }
                 }
             }
         }
     });
+
+    if(superSet.size>0){
+        if(!$('#blacklist_blocker').length){
+            $("body").append(
+                `<div id="blacklist_blocker" class="modal" style="opacity: 1; display: none;">
+                <p>Are you sure you want to continue ?? This page discusses about blacklisted topics which are : <b>`+[...superSet].join(', ')+`</b></p>
+                </div>`
+
+            );
+        }
+        $('#blacklist_blocker').modal({
+            fadeDuration: 100
+        });
+    }
 }
 function getWordlist(elem) {
     var wordlist;
     chrome.storage.sync.get(['blacklist'], function(result) {
-        wordlist = result.blacklist.split('\n');
+        wordlist = result.blacklist.toLowerCase().split('\n');
         checkAllElems(wordlist, elem);
     });
 }
 function runningStatus(elem) {
             var found = false;
-            chrome.storage.sync.get(['urls'], function(options) {
-                if (options.urls != undefined) {
-                    var urls = options.urls;
-                    urls = urls.split('\n');
-                        for (url in urls) {
-                            if (urls[url].trim() !== '') {
-                                if (window.location.href.includes(urls[url].trim())) found = true;
-                                // console.log(urls[url].trim());
+            if($('#blacklist_blocker').length){
+            }
+            else{
+                chrome.storage.sync.get(['urls'], function(options) {
+                    if (options.urls != undefined) {
+                        var urls = options.urls;
+                        urls = urls.split('\n');
+                            for (url in urls) {
+                                if (urls[url].trim() !== '') {
+                                    if(window.location.href.indexOf("google.") > -1) found = true;
+                                    else if (window.location.href.includes(urls[url].trim())) found = true;
+                                    // console.log(urls[url].trim());
+                                }
+                                if (found) break;
                             }
-                            if (found) break;
-                        }
-                        if (!found) {
-                            getWordlist(elem);
-                        } // else console.log('Disabled url detected: ' + urls[url]);
-                } else getWordlist(elem);
-            });
+                            if (!found) {
+                                getWordlist(elem);
+                            } // else console.log('Disabled url detected: ' + urls[url]);
+                    } else getWordlist(elem);
+                });
+            }
+
 
 }
 function Observer() {

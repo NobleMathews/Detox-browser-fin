@@ -5273,8 +5273,8 @@ function updateOptions() {
         chrome.storage.sync.get(['polarlist', 'blacklist'], function(result) {
             if(result.polarlist && result.blacklist){
                 let extrasD={};
-                wordlist = result.polarlist.split('\n').filter(Boolean);
-                blacklisti = result.blacklist.split('\n').filter(Boolean);
+                wordlist = result.polarlist.toLowerCase().split('\n').filter(Boolean);
+                blacklisti = result.blacklist.toLowerCase().split('\n').filter(Boolean);
                 wordlist.map(function(v){
                     let elementary = v.split(":");
                     extrasD = Object.assign({ [elementary[1].replace(/\s/g, '+')]:parseInt(elementary[0])}, extrasD);
