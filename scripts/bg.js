@@ -35,19 +35,19 @@
     };
 
     chrome.runtime.onInstalled.addListener(function() {
-        chrome.storage.local.get([ 'blurOption', 'abusingOption', 'hoveringOption'], function(r){
+        chrome.storage.sync.get([ 'blurOption', 'abusingOption', 'hoveringOption'], function(r){
     
             let defaults = {
                 'blurOption': true,
                 'hoveringOption': true,
                 'abusingOption': true,
             },
-            current = r.options,
+            current = r,
             newSettings = Object.assign(defaults,current);
     
-            chrome.storage.local.set({
-                options: newSettings
-            });
+            chrome.storage.sync.set(
+                newSettings
+            );
         });
     });
 
