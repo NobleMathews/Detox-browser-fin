@@ -6,10 +6,12 @@ function SaveUrls() {
 }
 
 function loadData() {
-    chrome.storage.sync.get([ 'urls', 'blurOption', 'hoveringOption'], function(result) {
+    chrome.storage.sync.get([ 'urls', 'blurOption', 'abusingOption', 'hoveringOption'], function(result) {
         if (result.urls != undefined) $('#urls').val(result.urls);
         else $('#urls').val('');
         $('#blurred').prop('checked', result.blurOption);
+        $('#abusing').prop('checked', result.abusingOption);
+
         if ($('#blurred').prop('checked')) $('#hoveringOption').css({ 'display': 'inline-block' });
         else $('#hoveringOption').css({ 'display': 'none' });
         $('#hovering').prop('checked', result.hoveringOption);
@@ -57,11 +59,19 @@ function saveHoveringOption() {
     });
 }
 
+function saveAbuseOption() {
+    let abusing = $('#abusing').prop('checked');
+    chrome.storage.sync.set({
+        'abusingOption': abusing
+    });
+}
+
 
 $(document).ready(function() {
     loadData();
     $('#urls').bind('input', Unsaved);
     $('#blurred').bind('change', saveBlurOption);
+    $('#abusing').bind('change', saveAbuseOption);
     $('#hovering').bind('change', saveHoveringOption);
     // $('#disabler').bind('change', disablerRadio);
     // $('#enabler').bind('change', enablerRadio);

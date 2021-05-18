@@ -34,6 +34,23 @@
         }
     };
 
+    chrome.runtime.onInstalled.addListener(function() {
+        chrome.storage.local.get([ 'blurOption', 'abusingOption', 'hoveringOption'], function(r){
+    
+            let defaults = {
+                'blurOption': true,
+                'hoveringOption': true,
+                'abusingOption': true,
+            },
+            current = r.options,
+            newSettings = Object.assign(defaults,current);
+    
+            chrome.storage.local.set({
+                options: newSettings
+            });
+        });
+    });
+
     chrome.runtime.onMessage.addListener(function(msg, sender, callback) {
         var tId = sender.tab.id;
         var wId = sender.tab.windowId;
@@ -42,7 +59,7 @@
         } else {
             chrome.browserAction.setIcon({ path: tabsManager.imagePaths[msg.event], tabId: tId });
             if(msg.event === 'inactive') {
-                if(msg.url) console.log('Avoided execution in: ' + msg.url);
+                // if(msg.url) console.log('Avoided execution in: ' + msg.url);
                 chrome.browserAction.setBadgeText({ text: '' });
             } else if(msg.event === 'active') {
                 tabsManager.setBadge(wId, tId, msg.count.toString());

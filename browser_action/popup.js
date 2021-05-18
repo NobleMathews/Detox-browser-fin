@@ -74,21 +74,21 @@ function UnsavedP() {
     });
 }
 
-function showExamples() {
-    if (document.getElementById('help').innerText == 'About') {
-        $('#examples').fadeIn(500);
-        $('#help').text('Hide');
-        $('body').animate({
-                scrollTop: $(document).height() - $(window).height()
-            },
-            1400,
-            "swing"
-        );
-    } else {
-        $('#examples').slideUp(500);
-        $('#help').text('About');
-    }
-}
+// function showExamples() {
+//     if (document.getElementById('help').innerText == 'About') {
+//         $('#examples').fadeIn(500);
+//         $('#help').text('Hide');
+//         $('body').animate({
+//                 scrollTop: $(document).height() - $(window).height()
+//             },
+//             1400,
+//             "swing"
+//         );
+//     } else {
+//         $('#examples').slideUp(500);
+//         $('#help').text('About');
+//     }
+// }
 
 function showOptions() {
     if (chrome.runtime.openOptionsPage) {
@@ -103,7 +103,7 @@ $(document).ready(function() {
     $('#save-btn').bind('click', SaveWords);
     $('#save-btnp').bind('click', SaveWordsP);
     // $('#toggle').bind('change', saveEnabled);
-    $('#help').bind('click', showExamples);
+    // $('#help').bind('click', showExamples);
     $('#optionsIcon').bind('click', showOptions);
     // Animations
     $('#logo').slideDown(250);
