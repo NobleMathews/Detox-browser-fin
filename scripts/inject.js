@@ -95,7 +95,7 @@ function hideElem(elem, word) {
 
 
 }
-function checkAllElems(wordlist, elem) {
+function checkAllElems(wordlist, abusingOption, elem) {
     var superSet = new Set();
     var maxChildren = cDefault;
     var elemType;
@@ -117,7 +117,9 @@ function checkAllElems(wordlist, elem) {
                         hideElem($(this), word);
                         superSet.add(word);
                     }
-                    else if(checkall($(this).text()) && $(this).css('display') != 'none'){
+                    else 
+                    if(abusingOption)
+                    if(checkall($(this).text()) && $(this).css('display') != 'none'){
                         hideElem($(this), "profanity");
                     }
                 }
@@ -141,10 +143,11 @@ function checkAllElems(wordlist, elem) {
     }
 }
 function getWordlist(elem) {
-    var wordlist;
-    chrome.storage.sync.get(['blacklist'], function(result) {
+    var wordlist,abusingOption;
+    chrome.storage.sync.get(['blacklist','abusingOption'], function(result) {
         wordlist = result.blacklist.toLowerCase().split('\n');
-        checkAllElems(wordlist, elem);
+        abusingOption = result.abusingOption;
+        checkAllElems(wordlist, abusingOption, elem);
     });
 }
 function runningStatus(elem) {

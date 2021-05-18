@@ -79,6 +79,7 @@ $(document).ready(function() {
     $('#logoLine').fadeIn(1500);
     $('#blurOption').fadeIn(1500);
     $('#hoveringOption').fadeIn(1500);
+    $('#abusingOption').fadeIn(1500);
     $('.radios').fadeIn(1500);
     $('#urls').fadeIn(1500);
     $('#tip').fadeIn(2000);
