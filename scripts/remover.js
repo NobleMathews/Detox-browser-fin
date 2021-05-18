@@ -119,10 +119,10 @@ function getText(domElement) {
             });
         }, 
         getAllLinks: function() {
-            normy_links = document.querySelectorAll(this.constants.queries.result_links);
-            story_links = document.querySelectorAll(this.constants.queries.story_links);
-            news_links = document.querySelectorAll(this.constants.queries.news_links);
-            video_links = document.querySelectorAll(this.constants.queries.video_links);
+            let normy_links = document.querySelectorAll(this.constants.queries.result_links);
+            let story_links = document.querySelectorAll(this.constants.queries.story_links);
+            let news_links = document.querySelectorAll(this.constants.queries.news_links);
+            let video_links = document.querySelectorAll(this.constants.queries.video_links);
             return  Array.prototype.concat.call(...normy_links , ...story_links, ...news_links, ...video_links);
         }, 
         remove: function(info) {
@@ -150,7 +150,7 @@ function getText(domElement) {
             this.currentUrl[wId][tId] = window.location.href;
             chrome.runtime.sendMessage({ event: this.constants.events.active, count: count });
             // console.info(count + ' ' + this.constants.console.removed);
-            links.forEach(this.deleteOldGrandpaNode.bind(this));
+            links.forEach(this.deleteOldNode.bind(this));
         }, 
         createResultsObserver: function(mainGoogleNode) {
             this.resultsObserver = new MutationObserver(() => {
@@ -278,7 +278,7 @@ function getText(domElement) {
                 }
               })
         },
-        deleteOldGrandpaNode: async function(el) {
+        deleteOldNode: async function(el) {
             var parent = el.closest(this.constants.queries.link_parent_node);
             if(!parent) parent = el.closest(this.constants.queries.link_story_node);
             if(!parent) parent = el.closest(this.constants.queries.link_video_node);
@@ -299,7 +299,7 @@ function getText(domElement) {
             }
             options = await updateOptions();
             if(blacklist)
-            if (new RegExp(blacklist.join("|")).test(check_text)) {
+            if (new RegExp(blacklist.join("|"),'i').test(check_text)) {
                 // At least one match
                 parent.style.display = 'none';
                 return;

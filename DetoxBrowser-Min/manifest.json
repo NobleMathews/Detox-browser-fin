@@ -15,7 +15,7 @@
         "<all_urls>"
     ],    
     "background": {
-        "scripts": [ "scripts/bg.js", "scripts/hot-reload.js" ], 
+        "scripts": [ "scripts/bg.js"], 
         "persistent": false
     },
     "browser_action": {
