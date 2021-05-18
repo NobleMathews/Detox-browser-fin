@@ -20,10 +20,10 @@ function updateOptions() {
                 wordlist = result.polarlist.toLowerCase().split('\n').filter(Boolean);
                 else
                 wordlist=[];
-                if(result.blacklist)
+                if(result.blacklist){
                 blacklisti = result.blacklist.toLowerCase().split('\n').filter(Boolean);
-                else
-                blacklisti = []
+                blacklist = blacklisti;
+                }
                 wordlist.map(function(v){
                     let elementary = v.split(":");
                     extrasD = Object.assign({ [elementary[1].replace(/\s/g, '+')]:parseInt(elementary[0])}, extrasD);
@@ -31,7 +31,6 @@ function updateOptions() {
                 const upd = Object.create(optionsT);
                 upd.extras = extrasD;
                 options = upd;
-                blacklist = blacklisti;
                 resolve(upd);
             }
             else{
