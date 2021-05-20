@@ -53,6 +53,7 @@
     #urls,
     #blurOption,
     #hoveringOption,
+    #blurblackOption,
     #abusingOption,
     #tip {
         display: none;
@@ -63,6 +64,7 @@
     #blurOption:before,
     #hoveringOption:before,
     #abusingOption:before,
+    #blurblackOption:before,
     #tip:before {
     content: "";
     display: block;
@@ -106,6 +108,9 @@
     <div class="three logo">
         <h1><b>Options</b></h1>
     </div>
+    <label id='blurblackOption'>
+        <input type='checkbox' id='blurredsearch'> Blur search results instead of removing them in case flagged by black list
+    </label>
     <label id='blurOption'>
         <input type='checkbox' id='blurred'> Blur elements detected by blacklist on pages (Beta)
     </label>
@@ -120,8 +125,7 @@
     <label>Disable DetoxBrowser on websites that include any of the following strings in the url</label> 
     <br>
     <br>
-    <textarea id='urls' placeholder='For example: linkedin.com 
-Separate urls/strings with new line '></textarea>
+    <textarea id='urls' placeholder='For example: linkedin.com &#10; Separate urls/strings with new line '></textarea>
     <p id='tip'>* For word polarity and customising please use the popup</p>
 </body>
 

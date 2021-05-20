@@ -5265,11 +5265,13 @@ var options={
 
     }
 }
+var blurblackOption = true;
 var blacklist;
 function updateOptions() {
     var wordlist, blacklisti;
     return new Promise((resolve, reject)=>{
-        chrome.storage.sync.get(['polarlist', 'blacklist'], function(result) {
+        chrome.storage.sync.get(['polarlist', 'blacklist', 'blurblackOption'], function(result) {
+            blurblackOption = result.blurblackOption;
             if(result.polarlist || result.blacklist){
                 let extrasD={};
                 if(result.polarlist)
@@ -5559,7 +5561,7 @@ function getText(domElement) {
                 return;
             }
             options = await updateOptions();
-            if(blacklist)
+            if(blacklist && blurblackOption)
             if (new RegExp(blacklist.join("|"),'i').test(check_text)) {
                 // At least one match
                 parent.style.display = 'none';

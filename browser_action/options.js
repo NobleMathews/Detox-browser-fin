@@ -6,11 +6,12 @@ function SaveUrls() {
 }
 
 function loadData() {
-    chrome.storage.sync.get([ 'urls', 'blurOption', 'abusingOption', 'hoveringOption'], function(result) {
+    chrome.storage.sync.get([ 'urls', 'blurOption', 'blurblackOption', 'abusingOption', 'hoveringOption'], function(result) {
         if (result.urls != undefined) $('#urls').val(result.urls);
         else $('#urls').val('');
         $('#blurred').prop('checked', result.blurOption);
         $('#abusing').prop('checked', result.abusingOption);
+        $('#blurredsearch').prop('checked', result.blurblackOption);
 
         if ($('#blurred').prop('checked')) $('#hoveringOption').css({ 'display': 'inline-block' });
         else $('#hoveringOption').css({ 'display': 'none' });
@@ -66,6 +67,13 @@ function saveAbuseOption() {
     });
 }
 
+function saveblurblackOption() {
+    let blurs = $('#blurredsearch').prop('checked');
+    chrome.storage.sync.set({
+        'blurblackOption': blurs
+    });
+}
+
 
 $(document).ready(function() {
     loadData();
@@ -73,6 +81,7 @@ $(document).ready(function() {
     $('#blurred').bind('change', saveBlurOption);
     $('#abusing').bind('change', saveAbuseOption);
     $('#hovering').bind('change', saveHoveringOption);
+    $('#blurredsearch').bind('change', saveblurblackOption);
     // $('#disabler').bind('change', disablerRadio);
     // $('#enabler').bind('change', enablerRadio);
     $('#logo').fadeIn(1000);
@@ -80,6 +89,7 @@ $(document).ready(function() {
     $('#blurOption').fadeIn(1500);
     $('#hoveringOption').fadeIn(1500);
     $('#abusingOption').fadeIn(1500);
+    $('#blurblackOption').fadeIn(1500);
     $('.radios').fadeIn(1500);
     $('#urls').fadeIn(1500);
     $('#tip').fadeIn(2000);
