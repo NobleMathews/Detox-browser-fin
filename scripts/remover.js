@@ -305,7 +305,7 @@ function getText(domElement) {
                 return;
             }
             options = await updateOptions();
-            if(blacklist && blurblackOption)
+            if(blacklist && !blurblackOption)
             if (new RegExp(blacklist.join("|"),'i').test(check_text)) {
                 // At least one match
                 parent.style.display = 'none';
@@ -332,7 +332,7 @@ function getText(domElement) {
             let sentimenti = this.createThumbnail(img);
             let sentimenti2 = this.createThumbnail2(img);
             var overlay;
-            if(score<0){
+            if(score<0 && parent){
                 overlay = this.addClientRectsOverlay(parent,sentimenti,sentimenti2);
                 if(!overlay){
                     // console.log(parent);
