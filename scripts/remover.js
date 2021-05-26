@@ -180,7 +180,7 @@ function getText(domElement) {
                is the same as the rectangle's width.
                Note: the overlays will be out of place if the user resizes or zooms. */
             var that = this;
-            var rects = elt.getClientRects();
+            var rects = elt?.getClientRects();
             for (var i = 0; i != rects.length; i++) {
             let original = elt;
               var rect = rects[i];
@@ -191,16 +191,16 @@ function getText(domElement) {
               var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
               var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
               tableRectDiv.style.margin = '0px';
-              if(elt.tagName=='DIV')
+              if(elt?.tagName=='DIV')
               {
                 tableRectDiv.style.padding = '5px 25px';
                 tableRectDiv.style.marginBlockEnd = "10px";
               }
-              else if(elt.tagName=="G-INNER-CARD"){
+              else if(elt?.tagName=="G-INNER-CARD"){
                 tableRectDiv.style.padding = '0px 25px';
                 tableRectDiv.style.marginBlockEnd = "0px";
               }
-              else if(elt.firstChild.childNodes[0].tagName=="A"){
+              else if(elt?.firstChild.childNodes[0].tagName=="A"){
                 tableRectDiv.style.padding = '0px 25px';
                 tableRectDiv.style.marginBlockEnd = "0px";
               }
@@ -216,7 +216,7 @@ function getText(domElement) {
               if(this.tagName=='G-INNER-CARD'){
                 tableRectDiv.innerHTML=sentimenti2.outerHTML;
             }
-            else if(elt.firstChild.childNodes[0].tagName=="A"){
+            else if(elt?.firstChild.childNodes[0].tagName=="A"){
                 tableRectDiv.innerHTML=sentimenti2.outerHTML;
               }
               tableRectDiv.onclick = function(){
@@ -355,7 +355,7 @@ function getText(domElement) {
             else if(parent.tagName=='G-INNER-CARD'){
                 parent.insertBefore(sentimenti2,parent.firstChild);
             }
-            else if(elt.firstChild.childNodes[0].tagName=="A"){
+            else if(elt?.firstChild.childNodes[0].tagName=="A"){
                 parent.insertBefore(sentimenti2,parent.firstChild);
             }
 
