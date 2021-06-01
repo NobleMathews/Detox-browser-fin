@@ -1,0 +1,138 @@
+{
+  "compat": [],
+  "errors": [
+    {
+      "message": "Icons must be square.",
+      "description": "Icon at \"images/a48.png\" must be square.",
+      "locations": [
+        {
+          "file": "manifest.json"
+        },
+        {
+          "file": "manifest.json"
+        },
+        {
+          "file": "manifest.json"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "message": "\"storage.sync\" can cause issues when loaded temporarily",
+      "description": "This API can cause issues when loaded temporarily using about:debugging in Firefox unless you specify applications|browser_specific_settings > gecko > id in the manifest. Please see: https://mzl.la/2hizK4a for more.",
+      "locations": [
+        {
+          "file": "browser_action/options.js",
+          "line": 1
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 2
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 3
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 3
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 3
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 4
+        },
+        {
+          "file": "browser_action/options.js",
+          "line": 4
+        },
+        {
+          "file": "browser_action/popup.js",
+          "line": 1
+        },
+        {
+          "file": "browser_action/popup.js",
+          "line": 1
+        },
+        {
+          "file": "browser_action/popup.js",
+          "line": 2
+        },
+        {
+          "file": "browser_action/popup.js",
+          "line": 3
+        },
+        {
+          "file": "browser_action/popup.js",
+          "line": 4
+        },
+        {
+          "file": "scripts/bg.js",
+          "line": 2
+        },
+        {
+          "file": "scripts/bg.js",
+          "line": 2
+        },
+        {
+          "file": "scripts/inject.js",
+          "line": 4
+        },
+        {
+          "file": "scripts/inject.js",
+          "line": 4
+        },
+        {
+          "file": "scripts/inject.js",
+          "line": 8
+        },
+        {
+          "file": "scripts/inject.js",
+          "line": 8
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 344
+        }
+      ]
+    },
+    {
+      "message": "Unsafe assignment to innerHTML",
+      "description": "Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.",
+      "locations": [
+        {
+          "file": "scripts/bundle.js",
+          "line": 352
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 352
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 352
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 353
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 353
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 354
+        },
+        {
+          "file": "scripts/bundle.js",
+          "line": 354
+        }
+      ]
+    }
+  ]
+}
